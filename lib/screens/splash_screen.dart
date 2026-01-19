@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:ecommerce_app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -11,126 +12,156 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
-    // Long timer for editing
-    Timer(const Duration(seconds: 8978787), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-      }
+    // 1. AUTOMATIC NAVIGATION after 5 seconds
+    _timer = Timer(const Duration(seconds: 788989), () {
+      _navigateToHome();
     });
+  }
+
+  // Function to handle navigation safely
+  void _navigateToHome() {
+    if (mounted) {
+      _timer?.cancel(); // Cancel timer if user clicked manually
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Clean up timer when widget is destroyed
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black, // Set background to black
-      body: Stack(
-        children: [
-          // 1. Image that only goes down to the first button
-          Column(
-            children: [
-              Expanded(
-                flex: 7, // This controls how much of the screen the image takes
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
-                  child: Image.asset(
-                    'images/splash_screen.jpg',
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              // This creates the black space behind the buttons
-              const Expanded(flex: 3, child: SizedBox()),
-            ],
-          ),
+    const String movingText = "TRENDY COLLECTION • ";
 
-          // 2. The "Lumière" Title at the top
-          Positioned(
-            top: 60,
-            left: 0,
-            right: 0,
-            child: const Text(
-              'Lumière',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.w300,
-                letterSpacing: 6,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light, // Keeps clock/battery icons white
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Column(
+          children: [
+            // 1. TOP IMAGE - FULL WIDTH & TOUCHING TOP
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(40),
+                  bottomRight: Radius.circular(40),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Image.asset(
+                        'images/splash_screen.jpg',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned(
+                      top: 60,
+                      left: 0,
+                      right: 0,
+                      child: const Text(
+                        'Lumière',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                    ).animate().fadeIn(duration: 800.ms),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // 3. Buttons overlayed at the bottom
-          Positioned(
-            bottom: 40,
-            left: 20,
-            right: 20,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // TRENDY CO Button
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFC5C9B8),
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: const Text(
-                    "TRENDY COLLECTIONS",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 10,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // DISCOVER NOW Button
-                InkWell(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomeScreen(),
-                      ),
-                    );
-                  },
-                  child: Container(
+            // 2. BUTTONS SECTION - TOUCHING THE IMAGE
+            Container(
+              color: Colors.black,
+              padding: const EdgeInsets.fromLTRB(10, 15, 10, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // TRENDY COLLECTION - 135 HEIGHT
+                  Container(
                     width: double.infinity,
-                    height: 70,
+                    height: 135,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFB08968),
-                      borderRadius: BorderRadius.circular(50),
+                      color: const Color(0xFFC5C9B8),
+                      borderRadius: BorderRadius.circular(35),
                     ),
-                    child: const Center(
-                      child: Text(
-                        "Discover Now",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(35),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return Center(
+                            child:
+                                Text(
+                                      movingText,
+                                      style: const TextStyle(
+                                        fontSize: 55,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.black,
+                                      ),
+                                    )
+                                    .animate(
+                                      onPlay: (controller) =>
+                                          controller.repeat(),
+                                    )
+                                    .moveX(
+                                      begin: 0,
+                                      end: -450,
+                                      duration: 5.seconds,
+                                      curve: Curves.linear,
+                                    ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // DISCOVER NOW BUTTON - 100 HEIGHT
+                  InkWell(
+                    onTap: () =>
+                        _navigateToHome(), // 2. MANUAL NAVIGATION on click
+                    child: Container(
+                      width: double.infinity,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFB08968),
+                        borderRadius: BorderRadius.circular(35),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          "Discover Now",
+                          style: TextStyle(
+                            fontSize: 26,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
