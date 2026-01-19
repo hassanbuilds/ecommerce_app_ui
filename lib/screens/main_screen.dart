@@ -6,7 +6,7 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE5E5E0), // Matches your video theme
+      backgroundColor: const Color(0xFFE5E5E0),
       body: SafeArea(
         child: Column(
           children: [
