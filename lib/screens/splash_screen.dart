@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     // 1. AUTOMATIC NAVIGATION after 5 seconds
-    _timer = Timer(const Duration(seconds: 788989), () {
+    _timer = Timer(const Duration(seconds: 5), () {
       _navigateToHome();
     });
   }
