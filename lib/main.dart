@@ -1,17 +1,21 @@
 import 'package:ecommerce_app/screens/splash_screen.dart';
+
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(
-    const MaterialApp(debugShowCheckedModeBanner: false, home: SplashScreen()),
-  );
+  runApp(const MyApp());
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text('Lumière Home')));
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Lumiere App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const SplashScreen(), // App starts with Splash
+    );
   }
 }

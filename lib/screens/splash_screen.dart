@@ -1,5 +1,7 @@
 import 'dart:async';
-import 'package:ecommerce_app/main.dart';
+// 1. CHANGE THIS IMPORT to point to your new file
+
+import 'package:ecommerce_app/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -29,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
       _timer?.cancel(); // Cancel timer if user clicked manually
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const MainScreen()),
       );
     }
   }
