@@ -14,7 +14,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // FILTER: Find products that match the selected category
+    // 1. FILTER: Find products that match the selected category
     List<Product> displayedProducts = allProducts
         .where((p) => p.category == selectedCategory)
         .toList();
@@ -23,46 +23,64 @@ class _MainScreenState extends State<MainScreen> {
       backgroundColor: Colors.black,
       body: Column(
         children: [
-          // 1. TOP APP BAR
+          // --- TOP SECTION (App Bar & Search) ---
           Container(
             width: double.infinity,
             decoration: const BoxDecoration(
               color: Color(0xFFE5E5E0),
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
+                bottomLeft: Radius.circular(25),
+                bottomRight: Radius.circular(25),
               ),
             ),
-            padding: const EdgeInsets.fromLTRB(20, 50, 20, 25),
+            padding: const EdgeInsets.fromLTRB(20, 60, 20, 25),
             child: Column(
               children: [
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(Icons.menu, color: Colors.black, size: 28),
-                    Text(
+                    const Icon(Icons.menu, color: Colors.black, size: 28),
+                    const Text(
                       'Lumière',
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
                       ),
                     ),
-                    Icon(
-                      Icons.shopping_bag_outlined,
-                      color: Colors.black,
-                      size: 28,
+                    Stack(
+                      children: [
+                        const Icon(
+                          Icons.shopping_bag_outlined,
+                          color: Colors.black,
+                          size: 28,
+                        ),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            height: 12,
+                            width: 12,
+                            decoration: const BoxDecoration(
+                              color: Colors.orange,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 25),
                 TextField(
                   decoration: InputDecoration(
                     hintText: "Search your needs",
-                    prefixIcon: const Icon(Icons.search),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
                     filled: true,
                     fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(15),
                       borderSide: BorderSide.none,
                     ),
                   ),
@@ -70,66 +88,69 @@ class _MainScreenState extends State<MainScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 8),
 
-          // 2. MAIN WHITE SECTION
+          // --- MAIN CONTENT SECTION ---
           Expanded(
             child: Container(
               width: double.infinity,
-              decoration: BoxDecoration(
+              margin: const EdgeInsets.only(top: 10),
+              decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
               ),
               child: Column(
                 children: [
                   const SizedBox(height: 25),
-                  // Category List
-                  SizedBox(
-                    height: 45,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      children: ["Trending", "Shoes", "Sweatshirts", "Shirts"]
-                          .map((cat) {
-                            return GestureDetector(
-                              onTap: () =>
-                                  setState(() => selectedCategory = cat),
-                              child: _buildCategoryChip(
-                                cat,
-                                isSelected: selectedCategory == cat,
-                              ),
-                            );
-                          })
-                          .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
 
-                  // THE DYNAMIC GRID
+                  // Category Tabs
+                  _buildCategoryList(),
+
+                  const SizedBox(height: 20),
+
+                  // The Dynamic Staggered Grid
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // LEFT COLUMN
+                          // Left Column
                           Expanded(
                             child: Column(
                               children: [
-                                _buildManualCard(context, displayedProducts[0]),
+                                if (displayedProducts.isNotEmpty)
+                                  _buildManualCard(
+                                    context,
+                                    displayedProducts[0],
+                                  ),
                                 const SizedBox(height: 20),
-                                _buildManualCard(context, displayedProducts[2]),
+                                if (displayedProducts.length > 2)
+                                  _buildManualCard(
+                                    context,
+                                    displayedProducts[2],
+                                  ),
                               ],
                             ),
                           ),
                           const SizedBox(width: 15),
-                          // RIGHT COLUMN
+                          // Right Column
                           Expanded(
                             child: Column(
                               children: [
-                                _buildManualCard(context, displayedProducts[1]),
+                                if (displayedProducts.length > 1)
+                                  _buildManualCard(
+                                    context,
+                                    displayedProducts[1],
+                                  ),
                                 const SizedBox(height: 20),
-                                _buildManualCard(context, displayedProducts[3]),
+                                if (displayedProducts.length > 3)
+                                  _buildManualCard(
+                                    context,
+                                    displayedProducts[3],
+                                  ),
                               ],
                             ),
                           ),
@@ -142,51 +163,50 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ),
 
-          const SizedBox(height: 8),
-
-          // 3. BOTTOM NAV BAR
-          Container(
-            height: 90,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Icon(Icons.home_filled, color: Colors.black, size: 30),
-                Icon(Icons.favorite_border, color: Colors.black54, size: 30),
-                Icon(Icons.settings_outlined, color: Colors.black54, size: 30),
-                Icon(Icons.person_outline, color: Colors.black54, size: 30),
-              ],
-            ),
-          ),
+          // --- BOTTOM NAV BAR ---
+          _buildBottomNavBar(),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryChip(String label, {bool isSelected = false}) {
-    return Container(
-      margin: const EdgeInsets.only(right: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.black : Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        border: isSelected ? null : Border.all(color: Colors.grey.shade200),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? Colors.white : Colors.black,
-          fontWeight: FontWeight.w600,
-        ),
+  // --- WIDGET: CATEGORY LIST ---
+  Widget _buildCategoryList() {
+    return SizedBox(
+      height: 45,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        children: ["Trending", "Shoes", "Sweatshirts", "Shirts"].map((cat) {
+          bool isSelected = selectedCategory == cat;
+          return GestureDetector(
+            onTap: () => setState(() => selectedCategory = cat),
+            child: Container(
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.black : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                border: isSelected
+                    ? null
+                    : Border.all(color: Colors.grey.shade200),
+              ),
+              child: Text(
+                cat,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black54,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
 
+  // --- WIDGET: PRODUCT CARD ---
   Widget _buildManualCard(BuildContext context, Product product) {
     return InkWell(
       onTap: () {
@@ -204,16 +224,12 @@ class _MainScreenState extends State<MainScreen> {
             height: product.height,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: const Color(0xFFE5E5E0),
-              borderRadius: BorderRadius.circular(20),
+              color: const Color(0xFFF3F3F3),
+              borderRadius: BorderRadius.circular(25),
               image: DecorationImage(
                 image: AssetImage(product.images[0]),
                 fit: BoxFit.cover,
-                onError:
-                    (
-                      exception,
-                      stackTrace,
-                    ) {}, // Prevents crash if image missing
+                onError: (e, s) {},
               ),
             ),
             child: Stack(
@@ -221,26 +237,88 @@ class _MainScreenState extends State<MainScreen> {
                 Positioned(
                   top: 12,
                   right: 12,
-                  child: Icon(
-                    Icons.favorite_border,
-                    color: Colors.black.withOpacity(0.5),
-                    size: 22,
+                  child: GestureDetector(
+                    onTap: () {
+                      // THIS IS THE LIKE LOGIC
+                      setState(() {
+                        product.isFavorite = !product.isFavorite;
+                      });
+                    },
+                    child: CircleAvatar(
+                      backgroundColor: Colors.white.withOpacity(0.8),
+                      radius: 16,
+                      child: Icon(
+                        product.isFavorite
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: product.isFavorite ? Colors.red : Colors.black,
+                        size: 18,
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            product.title,
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
-          ),
-          Text(
-            product.price,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.only(left: 5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  product.price,
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  // --- WIDGET: BOTTOM NAV ---
+  Widget _buildBottomNavBar() {
+    return Container(
+      height: 85,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildNavIcon(Icons.home_filled, true),
+          _buildNavIcon(Icons.favorite_border, false),
+          _buildNavIcon(Icons.notifications_none, false),
+          _buildNavIcon(Icons.person_outline, false),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavIcon(IconData icon, bool isActive) {
+    return Icon(
+      icon,
+      color: isActive ? Colors.black : Colors.grey.shade400,
+      size: 28,
     );
   }
 }
