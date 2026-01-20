@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'product_screen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -46,7 +47,7 @@ class MainScreen extends StatelessWidget {
                     hintText: "Search your needs",
                     prefixIcon: const Icon(Icons.search),
                     filled: true,
-                    fillColor: Colors.white, // Search bar now pure white
+                    fillColor: Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
                       borderSide: BorderSide.none,
@@ -59,7 +60,7 @@ class MainScreen extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // 2. MAIN PRODUCT SECTION
+          // 2. MAIN PRODUCT SECTION (MANUAL STAGGERED LAYOUT)
           Expanded(
             child: Container(
               width: double.infinity,
@@ -77,37 +78,74 @@ class MainScreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       children: [
-                        _buildCategoryChip(
-                          "Trending",
-                          isSelected: true,
-                        ), // True = Black
-                        _buildCategoryChip(
-                          "Shoes",
-                          isSelected: false,
-                        ), // False = White
+                        _buildCategoryChip("Trending", isSelected: true),
+                        _buildCategoryChip("Shoes", isSelected: false),
                         _buildCategoryChip("Sweatshirts", isSelected: false),
                         _buildCategoryChip("Shirts", isSelected: false),
-                        _buildCategoryChip("Bags", isSelected: false),
                       ],
                     ),
                   ),
                   const SizedBox(height: 15),
-                  // Product Grid
+
+                  // THE MANUAL GRID FIX
                   Expanded(
-                    child: GridView.builder(
+                    child: SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: 4,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.72,
-                            mainAxisSpacing: 15,
-                            crossAxisSpacing: 15,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // LEFT COLUMN
+                          Expanded(
+                            child: Column(
+                              children: [
+                                // Index 0: TALL
+                                _buildManualCard(
+                                  context,
+                                  "Men's Pullover Hoodie",
+                                  "€97",
+                                  280,
+                                ),
+                                const SizedBox(height: 20),
+                                // Index 2: SHORT
+                                _buildManualCard(
+                                  context,
+                                  "Yoga Crewneck",
+                                  "€42",
+                                  190,
+                                ),
+                              ],
+                            ),
                           ),
-                      itemBuilder: (context, index) => _buildProductCard(index),
+
+                          const SizedBox(
+                            width: 15,
+                          ), // Horizontal gap between columns
+                          // RIGHT COLUMN
+                          Expanded(
+                            child: Column(
+                              children: [
+                                // Index 1: SHORT
+                                _buildManualCard(
+                                  context,
+                                  "Men's Sport Jersey",
+                                  "€68",
+                                  190,
+                                ),
+                                const SizedBox(height: 20),
+                                // Index 3: TALL
+                                _buildManualCard(
+                                  context,
+                                  "Knit Cardigan",
+                                  "€94",
+                                  280,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 10),
                 ],
               ),
             ),
@@ -120,7 +158,7 @@ class MainScreen extends StatelessWidget {
             height: 90,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.white, // Nav bar is white
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Row(
@@ -138,17 +176,14 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  // UPDATED CATEGORY CHIP LOGIC
   Widget _buildCategoryChip(String label, {bool isSelected = false}) {
     return Container(
       margin: const EdgeInsets.only(right: 10),
       padding: const EdgeInsets.symmetric(horizontal: 25),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        // Logic: if true -> Black, else -> White
         color: isSelected ? Colors.black : Colors.white,
         borderRadius: BorderRadius.circular(25),
-        // Adding a subtle border for the white chips so they are visible on the white background
         border: isSelected ? null : Border.all(color: Colors.grey.shade200),
       ),
       child: Text(
@@ -161,48 +196,58 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProductCard(int index) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Container(
+  // Helper method for manual height control
+  Widget _buildManualCard(
+    BuildContext context,
+    String title,
+    String price,
+    double height,
+  ) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProductScreen()),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: height,
+            width: double.infinity,
             decoration: BoxDecoration(
-              color: const Color(
-                0xFFF2F2ED,
-              ), // Keep product background slightly off-white to show depth
-              borderRadius: BorderRadius.circular(15),
+              color: const Color(0xFFE5E5E0),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Stack(
               children: [
-                const Center(
-                  child: Icon(Icons.image, size: 50, color: Colors.grey),
-                ),
                 Positioned(
-                  top: 10,
-                  right: 10,
-                  child: Container(
-                    padding: const EdgeInsets.all(
-                      8,
-                    ), // Fixed padding (your 50 was too large)
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.favorite_border, size: 18),
+                  top: 12,
+                  right: 12,
+                  child: Icon(
+                    Icons.favorite_border,
+                    color: Colors.black.withOpacity(0.5),
+                    size: 22,
                   ),
+                ),
+                const Center(
+                  child: Icon(Icons.person, size: 60, color: Colors.black12),
                 ),
               ],
             ),
           ),
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          "Product Title",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const Text("€97", style: TextStyle(color: Colors.black54)),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+          ),
+          Text(
+            price,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+        ],
+      ),
     );
   }
 }
