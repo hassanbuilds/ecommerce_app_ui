@@ -1,7 +1,9 @@
+import 'package:ecommerce_app/screens/fake_dummy_data.dart';
 import 'package:flutter/material.dart';
 
 class ProductScreen extends StatelessWidget {
-  const ProductScreen({super.key});
+  final Product product;
+  const ProductScreen({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -9,7 +11,7 @@ class ProductScreen extends StatelessWidget {
       backgroundColor: Colors.black,
       body: Column(
         children: [
-          // 1. WHITE TOP APP BAR WITH BOTTOM CURVE
+          // 1. WHITE TOP APP BAR
           Container(
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -45,7 +47,7 @@ class ProductScreen extends StatelessWidget {
             ),
           ),
 
-          // 2. MAIN PRODUCT IMAGE CARD
+          // 2. DYNAMIC IMAGE CARD
           Expanded(
             flex: 5,
             child: Container(
@@ -53,12 +55,13 @@ class ProductScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFFE5E5E0),
                 borderRadius: BorderRadius.circular(30),
+                image: DecorationImage(
+                  image: AssetImage(product.imagePath),
+                  fit: BoxFit.contain,
+                ),
               ),
               child: Stack(
                 children: [
-                  const Center(
-                    child: Icon(Icons.person, size: 280, color: Colors.black12),
-                  ),
                   Positioned(
                     right: 15,
                     top: 0,
@@ -67,7 +70,8 @@ class ProductScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
                         5,
-                        (index) => _buildThumbnail(index == 1),
+                        (index) =>
+                            _buildThumbnail(index == 1, product.imagePath),
                       ),
                     ),
                   ),
@@ -76,7 +80,7 @@ class ProductScreen extends StatelessWidget {
             ),
           ),
 
-          // 3. PRODUCT DETAILS CARD
+          // 3. DYNAMIC PRODUCT DETAILS
           Expanded(
             flex: 4,
             child: Container(
@@ -89,22 +93,22 @@ class ProductScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Men's Fleece",
-                            style: TextStyle(
+                            product.category,
+                            style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black54,
                             ),
                           ),
                           Text(
-                            "Pullover Hoodie",
-                            style: TextStyle(
+                            product.title,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
@@ -112,8 +116,8 @@ class ProductScreen extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        "€97",
-                        style: TextStyle(
+                        product.price,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -139,11 +143,14 @@ class ProductScreen extends StatelessWidget {
                     ].map((s) => _buildSizeChip(s, s == "M")).toList(),
                   ),
                   const SizedBox(height: 15),
-                  const Expanded(
+                  Expanded(
                     child: SingleChildScrollView(
                       child: Text(
-                        "Warm, brushed fleece hoodie made for comfort and style shdu h jashd asuiasnjdui; s djhudshu iasiadns dysgasas aydvadsuydg suy dgsdjsh digsydu sdugsduydysdvtsdbsdvts dbhgwsduywqdbsghdvstg dcsdsxc sxbyh chjcgcvghc.",
-                        style: TextStyle(color: Colors.black54, height: 1.4),
+                        product.description,
+                        style: const TextStyle(
+                          color: Colors.black54,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                   ),
@@ -152,7 +159,7 @@ class ProductScreen extends StatelessWidget {
             ),
           ),
 
-          // 4. ADD TO CART BUTTON
+          // 4. BUTTON
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 20),
             child: ElevatedButton(
@@ -191,7 +198,7 @@ class ProductScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildThumbnail(bool isSelected) {
+  Widget _buildThumbnail(bool isSelected, String path) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5),
       height: 55,
@@ -199,9 +206,9 @@ class ProductScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(15),
+        image: DecorationImage(image: AssetImage(path), fit: BoxFit.cover),
         border: isSelected ? Border.all(color: Colors.white, width: 2) : null,
       ),
-      child: const Icon(Icons.person, size: 30, color: Colors.black26),
     );
   }
 

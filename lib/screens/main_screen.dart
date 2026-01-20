@@ -1,16 +1,29 @@
+import 'package:ecommerce_app/screens/fake_dummy_data.dart';
 import 'package:flutter/material.dart';
 import 'product_screen.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
   @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  String selectedCategory = "Trending";
+
+  @override
   Widget build(BuildContext context) {
+    // FILTER: Find products that match the selected category
+    List<Product> displayedProducts = allProducts
+        .where((p) => p.category == selectedCategory)
+        .toList();
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Column(
         children: [
-          // 1. TOP APP BAR SECTION
+          // 1. TOP APP BAR
           Container(
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -23,18 +36,18 @@ class MainScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 50, 20, 25),
             child: Column(
               children: [
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.menu, color: Colors.black, size: 28),
-                    const Text(
+                    Icon(Icons.menu, color: Colors.black, size: 28),
+                    Text(
                       'Lumière',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.shopping_bag_outlined,
                       color: Colors.black,
                       size: 28,
@@ -57,10 +70,9 @@ class MainScreen extends StatelessWidget {
               ],
             ),
           ),
-
           const SizedBox(height: 8),
 
-          // 2. MAIN PRODUCT SECTION (MANUAL STAGGERED LAYOUT)
+          // 2. MAIN WHITE SECTION
           Expanded(
             child: Container(
               width: double.infinity,
@@ -77,17 +89,23 @@ class MainScreen extends StatelessWidget {
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      children: [
-                        _buildCategoryChip("Trending", isSelected: true),
-                        _buildCategoryChip("Shoes", isSelected: false),
-                        _buildCategoryChip("Sweatshirts", isSelected: false),
-                        _buildCategoryChip("Shirts", isSelected: false),
-                      ],
+                      children: ["Trending", "Shoes", "Sweatshirts", "Shirts"]
+                          .map((cat) {
+                            return GestureDetector(
+                              onTap: () =>
+                                  setState(() => selectedCategory = cat),
+                              child: _buildCategoryChip(
+                                cat,
+                                isSelected: selectedCategory == cat,
+                              ),
+                            );
+                          })
+                          .toList(),
                     ),
                   ),
                   const SizedBox(height: 15),
 
-                  // THE MANUAL GRID FIX
+                  // THE DYNAMIC GRID
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -98,47 +116,20 @@ class MainScreen extends StatelessWidget {
                           Expanded(
                             child: Column(
                               children: [
-                                // Index 0: TALL
-                                _buildManualCard(
-                                  context,
-                                  "Men's Pullover Hoodie",
-                                  "€97",
-                                  280,
-                                ),
+                                _buildManualCard(context, displayedProducts[0]),
                                 const SizedBox(height: 20),
-                                // Index 2: SHORT
-                                _buildManualCard(
-                                  context,
-                                  "Yoga Crewneck",
-                                  "€42",
-                                  190,
-                                ),
+                                _buildManualCard(context, displayedProducts[2]),
                               ],
                             ),
                           ),
-
-                          const SizedBox(
-                            width: 15,
-                          ), // Horizontal gap between columns
+                          const SizedBox(width: 15),
                           // RIGHT COLUMN
                           Expanded(
                             child: Column(
                               children: [
-                                // Index 1: SHORT
-                                _buildManualCard(
-                                  context,
-                                  "Men's Sport Jersey",
-                                  "€68",
-                                  190,
-                                ),
+                                _buildManualCard(context, displayedProducts[1]),
                                 const SizedBox(height: 20),
-                                // Index 3: TALL
-                                _buildManualCard(
-                                  context,
-                                  "Knit Cardigan",
-                                  "€94",
-                                  280,
-                                ),
+                                _buildManualCard(context, displayedProducts[3]),
                               ],
                             ),
                           ),
@@ -196,29 +187,34 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  // Helper method for manual height control
-  Widget _buildManualCard(
-    BuildContext context,
-    String title,
-    String price,
-    double height,
-  ) {
+  Widget _buildManualCard(BuildContext context, Product product) {
     return InkWell(
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const ProductScreen()),
+          MaterialPageRoute(
+            builder: (context) => ProductScreen(product: product),
+          ),
         );
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: height,
+            height: product.height,
             width: double.infinity,
             decoration: BoxDecoration(
               color: const Color(0xFFE5E5E0),
               borderRadius: BorderRadius.circular(20),
+              image: DecorationImage(
+                image: AssetImage(product.imagePath),
+                fit: BoxFit.cover,
+                onError:
+                    (
+                      exception,
+                      stackTrace,
+                    ) {}, // Prevents crash if image missing
+              ),
             ),
             child: Stack(
               children: [
@@ -231,19 +227,16 @@ class MainScreen extends StatelessWidget {
                     size: 22,
                   ),
                 ),
-                const Center(
-                  child: Icon(Icons.person, size: 60, color: Colors.black12),
-                ),
               ],
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            title,
+            product.title,
             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
           ),
           Text(
-            price,
+            product.price,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           ),
         ],
