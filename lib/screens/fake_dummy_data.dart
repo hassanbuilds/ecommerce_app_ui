@@ -6,6 +6,7 @@ class Product {
   final List<String> images; // Changed String to List<String>
   final String description;
   final double height;
+  bool isFavorite;
 
   Product({
     required this.title,
@@ -14,6 +15,7 @@ class Product {
     required this.images,
     required this.description,
     required this.height,
+    this.isFavorite = false,
   });
 }
 
