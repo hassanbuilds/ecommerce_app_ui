@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 // THE PRODUCT MODEL
 class Product {
   final String title;
