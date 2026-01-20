@@ -1,9 +1,9 @@
-// THE PRODUCT MODEL
+// 1. CORRECTED PRODUCT MODEL
 class Product {
   final String title;
   final String category;
   final String price;
-  final String images;
+  final List<String> images; // Changed String to List<String>
   final String description;
   final double height;
 
@@ -17,22 +17,35 @@ class Product {
   });
 }
 
-// HARDCODED DATA (4 Items per category)
+// 2. CORRECTED DUMMY DATA CHART
 List<Product> allProducts = [
   // TRENDING
   Product(
     title: "Men's Pullover Hoodie",
     category: "Trending",
     price: "€97",
-    images: "assets/t1.png",
+    images: [
+      "images/hoodie1.jpg",
+      "images/hoodie2.jpg",
+      "images/hoodie3.jpg",
+      "images/hoodie1.jpg",
+      "images/hoodie2.jpg",
+    ],
     height: 280,
-    description: "Warm, brushed fleece hoodie made for comfort and style.",
+    description:
+        "Celebrate the power and simplicity of the Swoosh. This warm, brushed fleece hoodie is made with some extra room through the shoulders.",
   ),
   Product(
     title: "Men's Sport Jersey",
     category: "Trending",
     price: "€68",
-    images: "assets/t2.png",
+    images: [
+      "images/sport1.jpg",
+      "images/sport2.jpg",
+      "images/sport3.jpg",
+      "images/sport4.jpg",
+      "images/sport5.jpg",
+    ],
     height: 190,
     description: "Breathable jersey for high-intensity training.",
   ),
@@ -40,7 +53,13 @@ List<Product> allProducts = [
     title: "Yoga Crewneck",
     category: "Trending",
     price: "€42",
-    images: "assets/t3.png",
+    images: [
+      "images/yoga1.jpg",
+      "images/yoga2.jpg",
+      "images/yoga3.jpg",
+      "images/yoga4.jpg",
+      "images/yoga5.jpg",
+    ],
     height: 190,
     description: "Soft touch crewneck for your daily yoga sessions.",
   ),
@@ -49,7 +68,11 @@ List<Product> allProducts = [
     category: "Trending",
     price: "€94",
     images: [
-      asseest/
+      "images/Knit Cardigan1.png",
+      "images/Knit Cardigan2.png",
+      "images/Knit Cardigan3.png",
+      "images/Knit Cardigan4.png",
+      "images/Knit Cardigan5.png",
     ],
     height: 280,
     description: "Premium knit cardigan for a sophisticated look.",
@@ -60,7 +83,7 @@ List<Product> allProducts = [
     title: "Retro Runner",
     category: "Shoes",
     price: "€120",
-    images: "assets/s1.png",
+    images: ["images/shoes1.jpg"],
     height: 280,
     description: "Classic running shoes with a vintage aesthetic.",
   ),
@@ -68,7 +91,7 @@ List<Product> allProducts = [
     title: "White Sneaker",
     category: "Shoes",
     price: "€85",
-    images: "assets/s2.png",
+    images: ["images/shoes2.png"],
     height: 190,
     description: "Clean, minimalist sneakers for any outfit.",
   ),
@@ -76,7 +99,7 @@ List<Product> allProducts = [
     title: "Air Max Pro",
     category: "Shoes",
     price: "€160",
-    images: "assets/s3.png",
+    images: ["images/shoes3.png"],
     height: 190,
     description: "Ultimate comfort with air-cushion technology.",
   ),
@@ -84,7 +107,7 @@ List<Product> allProducts = [
     title: "Summer Slide",
     category: "Shoes",
     price: "€45",
-    images: "assets/s4.png",
+    images: ["images4.png"],
     height: 280,
     description: "Comfortable slides for beach days.",
   ),
@@ -94,7 +117,7 @@ List<Product> allProducts = [
     title: "Grey Crewneck",
     category: "Sweatshirts",
     price: "€75",
-    images: "assets/sw1.png",
+    images: ["images/sweatshirt1.jpg"],
     height: 280,
     description: "Heavy fleece sweatshirt for cold weather.",
   ),
@@ -102,7 +125,7 @@ List<Product> allProducts = [
     title: "Oversized Fit",
     category: "Sweatshirts",
     price: "€80",
-    images: "assets/sw2.png",
+    images: ["images/sweatshirt2.jpg"],
     height: 190,
     description: "Trendy oversized fit for street style.",
   ),
@@ -110,7 +133,7 @@ List<Product> allProducts = [
     title: "Quarter Zip",
     category: "Sweatshirts",
     price: "€90",
-    images: "assets/sw3.png",
+    images: ["images/sweatshirt3.jpg"],
     height: 190,
     description: "Functional quarter zip for layering.",
   ),
@@ -118,7 +141,7 @@ List<Product> allProducts = [
     title: "Vintage Wash",
     category: "Sweatshirts",
     price: "€110",
-    images: "assets/sw4.png",
+    images: ["images/sweatshirt1.jpg"],
     height: 280,
     description: "Unique acid-wash finish.",
   ),
@@ -128,7 +151,7 @@ List<Product> allProducts = [
     title: "Oxford Button",
     category: "Shirts",
     price: "€65",
-    images: "assets/sh1.png",
+    images: ["images/shirt1.jpg"],
     height: 280,
     description: "Crisp cotton Oxford for a sharp look.",
   ),
@@ -136,7 +159,7 @@ List<Product> allProducts = [
     title: "Flannel Plaid",
     category: "Shirts",
     price: "€55",
-    images: "assets/sh2.png",
+    images: ["images/shirt2,jpg"],
     height: 190,
     description: "Warm flannel for outdoor activities.",
   ),
@@ -144,7 +167,7 @@ List<Product> allProducts = [
     title: "Linen Shirt",
     category: "Shirts",
     price: "€70",
-    images: "assets/sh3.png",
+    images: ["images/shirt3.jpg"],
     height: 190,
     description: "Breathable linen for summer comfort.",
   ),
@@ -152,7 +175,7 @@ List<Product> allProducts = [
     title: "Denim Shirt",
     category: "Shirts",
     price: "€85",
-    images: "assets/sh4.png",
+    images: ["images/shirt1.jpg"],
     height: 280,
     description: "Durable denim shirt with a modern cut.",
   ),

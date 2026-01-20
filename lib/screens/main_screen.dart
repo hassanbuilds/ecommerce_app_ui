@@ -207,7 +207,7 @@ class _MainScreenState extends State<MainScreen> {
               color: const Color(0xFFE5E5E0),
               borderRadius: BorderRadius.circular(20),
               image: DecorationImage(
-                image: AssetImage(product.images),
+                image: AssetImage(product.images[0]),
                 fit: BoxFit.cover,
                 onError:
                     (
