@@ -56,7 +56,7 @@ class ProductScreen extends StatelessWidget {
                 color: const Color(0xFFE5E5E0),
                 borderRadius: BorderRadius.circular(30),
                 image: DecorationImage(
-                  image: AssetImage(product.imagePath),
+                  image: AssetImage(product.images),
                   fit: BoxFit.contain,
                 ),
               ),
@@ -70,8 +70,7 @@ class ProductScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
                         5,
-                        (index) =>
-                            _buildThumbnail(index == 1, product.imagePath),
+                        (index) => _buildThumbnail(index == 1, product.images),
                       ),
                     ),
                   ),
