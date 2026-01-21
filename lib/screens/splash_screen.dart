@@ -1,6 +1,4 @@
 import 'dart:async';
-// 1. CHANGE THIS IMPORT to point to your new file
-
 import 'package:ecommerce_app/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,16 +17,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // 1. AUTOMATIC NAVIGATION after 5 seconds
-    _timer = Timer(const Duration(seconds: 5), () {
-      _navigateToHome();
-    });
+    _timer = Timer(const Duration(seconds: 5), () => _navigateToHome());
   }
 
-  // Function to handle navigation safely
   void _navigateToHome() {
     if (mounted) {
-      _timer?.cancel(); // Cancel timer if user clicked manually
+      _timer?.cancel();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const MainScreen()),
@@ -38,131 +32,149 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    _timer?.cancel(); // Clean up timer when widget is destroyed
+    _timer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const String movingText = "TRENDY COLLECTION • ";
+    // 1. GET SCREEN SIZE
+    final size = MediaQuery.of(context).size;
+    final bool isWeb = size.width > 800;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light, // Keeps clock/battery icons white
+      value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Colors.black,
-        body: Column(
-          children: [
-            // 1. TOP IMAGE - FULL WIDTH & TOUCHING TOP
-            Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Image.asset(
-                        'images/splash_screen.jpg',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned(
-                      top: 60,
-                      left: 0,
-                      right: 0,
-                      child: const Text(
-                        'Lumière',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                    ).animate().fadeIn(duration: 800.ms),
-                  ],
-                ),
-              ),
+        // 2. CENTER FOR WEB (Adds margins on big screens)
+        body: Center(
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: isWeb ? 500 : double.infinity,
             ),
-
-            // 2. BUTTONS SECTION - TOUCHING THE IMAGE
-            Container(
-              color: Colors.black,
-              padding: const EdgeInsets.fromLTRB(10, 15, 10, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // TRENDY COLLECTION - 135 HEIGHT
-                  Container(
-                    width: double.infinity,
-                    height: 135,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFC5C9B8),
-                      borderRadius: BorderRadius.circular(35),
+            child: Column(
+              children: [
+                // TOP IMAGE
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(40),
+                      bottomRight: Radius.circular(40),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(35),
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return Center(
-                            child:
-                                Text(
-                                      movingText,
-                                      style: const TextStyle(
-                                        fontSize: 55,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.black,
-                                      ),
-                                    )
-                                    .animate(
-                                      onPlay: (controller) =>
-                                          controller.repeat(),
-                                    )
-                                    .moveX(
-                                      begin: 0,
-                                      end: -450,
-                                      duration: 5.seconds,
-                                      curve: Curves.linear,
-                                    ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // DISCOVER NOW BUTTON - 100 HEIGHT
-                  InkWell(
-                    onTap: () =>
-                        _navigateToHome(), // 2. MANUAL NAVIGATION on click
-                    child: Container(
-                      width: double.infinity,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFB08968),
-                        borderRadius: BorderRadius.circular(35),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "Discover Now",
-                          style: TextStyle(
-                            fontSize: 26,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.5,
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Image.asset(
+                            'images/splash_screen.jpg',
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
                           ),
                         ),
-                      ),
+                        Positioned(
+                          top: isWeb ? 40 : 60, // Slightly lower on mobile
+                          left: 0,
+                          right: 0,
+                          child: const Text(
+                            'Lumière',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ).animate().fadeIn(duration: 800.ms),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+
+                // BUTTONS SECTION
+                Container(
+                  color: Colors.black,
+                  padding: EdgeInsets.fromLTRB(10, 15, 10, isWeb ? 40 : 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // TRENDY COLLECTION
+                      _buildMarqueeButton(context, isWeb),
+
+                      const SizedBox(height: 12),
+
+                      // DISCOVER NOW BUTTON
+                      _buildDiscoverButton(isWeb),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 3. SEPARATE WIDGETS FOR CLEANER CODE
+  Widget _buildMarqueeButton(BuildContext context, bool isWeb) {
+    return Container(
+      width: double.infinity,
+      height: isWeb ? 100 : 135, // Shorter on Web to fit the screen
+      decoration: BoxDecoration(
+        color: const Color(0xFFC5C9B8),
+        borderRadius: BorderRadius.circular(35),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(35),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) {
+            return Center(
+              child:
+                  Text(
+                        "TRENDY COLLECTION • ",
+                        style: TextStyle(
+                          fontSize: isWeb
+                              ? 40
+                              : 55, // Smaller text for Web browsers
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black,
+                        ),
+                      )
+                      .animate(onPlay: (c) => c.repeat())
+                      .moveX(
+                        begin: 0,
+                        end: -450,
+                        duration: 5.seconds,
+                        curve: Curves.linear,
+                      ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDiscoverButton(bool isWeb) {
+    return InkWell(
+      onTap: () => _navigateToHome(),
+      child: Container(
+        width: double.infinity,
+        height: isWeb ? 80 : 100, // Slightly thinner on Web
+        decoration: BoxDecoration(
+          color: const Color(0xFFB08968),
+          borderRadius: BorderRadius.circular(35),
+        ),
+        child: const Center(
+          child: Text(
+            "Discover Now",
+            style: TextStyle(
+              fontSize: 22,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.5,
+            ),
+          ),
         ),
       ),
     );
