@@ -219,7 +219,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  // --- REUSABLE WIDGETS ---
+  //  REUSABLE WIDGETS
 
   Widget _buildCircleIcon(IconData icon) {
     return Container(
