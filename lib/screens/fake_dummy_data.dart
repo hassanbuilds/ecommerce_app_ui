@@ -18,7 +18,7 @@ class Product {
   });
 }
 
-// 2. DUMMY DATA CHART
+//  DUMMY DATA CHART
 List<Product> allProducts = [
   // TRENDING
   Product(
