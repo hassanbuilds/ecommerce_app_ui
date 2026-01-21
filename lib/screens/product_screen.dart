@@ -93,11 +93,46 @@ class _ProductScreenState extends State<ProductScreen> {
                 'Product Details',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              _buildCircleIcon(Icons.shopping_bag_outlined),
+              _buildCartBadge(), // <--- UPDATED THIS
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // --- NEW CART BADGE LOGIC ---
+  Widget _buildCartBadge() {
+    // Count how many products in our global list have isInCart = true
+    int totalInCart = allProducts.where((p) => p.isInChart).length;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        _buildCircleIcon(Icons.shopping_bag_outlined),
+        if (totalInCart > 0)
+          Positioned(
+            right: -2,
+            top: -2,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.orange,
+                shape: BoxShape.circle,
+              ),
+              constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+              child: Text(
+                '$totalInCart',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -112,7 +147,6 @@ class _ProductScreenState extends State<ProductScreen> {
         children: [
           Center(
             child: Hero(
-              // FIX: Must match MainScreen tag
               tag: 'product_${widget.product.id}',
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -232,30 +266,56 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  Widget _buildAddToCartButton(bool isWeb) => Padding(
-    padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 12),
-    child: ElevatedButton(
-      onPressed: () {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Added $selectedSize to cart!")));
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFC7C7B1),
-        minimumSize: const Size(double.infinity, 70),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-        elevation: 0,
-      ),
-      child: const Text(
-        "Add to cart",
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
+  // --- UPDATED ADD/REMOVE BUTTON ---
+  Widget _buildAddToCartButton(bool isWeb) {
+    bool alreadyInCart = widget.product.isInChart;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 12, vertical: 10),
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() {
+            // Toggles the cart status
+            widget.product.isInChart = !widget.product.isInChart;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                widget.product.isInCart
+                    ? "Added $selectedSize to cart!"
+                    : "Removed from cart",
+              ),
+              duration: const Duration(seconds: 1),
+              backgroundColor: widget.product.isInCart
+                  ? Colors.green
+                  : Colors.redAccent,
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          // Change color to indicate state
+          backgroundColor: alreadyInCart
+              ? Colors.black
+              : const Color(0xFFC7C7B1),
+          minimumSize: const Size(double.infinity, 70),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          elevation: 0,
+        ),
+        child: Text(
+          alreadyInCart ? "Remove from cart" : "Add to cart",
+          style: TextStyle(
+            color: alreadyInCart ? Colors.white : Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
+
   Widget _buildCircleIcon(IconData icon) => Container(
     padding: const EdgeInsets.all(10),
     decoration: const BoxDecoration(
@@ -264,6 +324,7 @@ class _ProductScreenState extends State<ProductScreen> {
     ),
     child: Icon(icon, color: Colors.black, size: 22),
   );
+
   Widget _buildThumbnail(bool isSelected, String path) => AnimatedContainer(
     duration: const Duration(milliseconds: 300),
     margin: const EdgeInsets.symmetric(vertical: 5),
@@ -276,6 +337,7 @@ class _ProductScreenState extends State<ProductScreen> {
       border: isSelected ? Border.all(color: Colors.black, width: 2) : null,
     ),
   );
+
   Widget _buildSizeChip(String size, bool isSelected) => AnimatedContainer(
     duration: const Duration(milliseconds: 200),
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
