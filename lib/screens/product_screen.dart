@@ -20,7 +20,7 @@ class _ProductScreenState extends State<ProductScreen> {
       backgroundColor: Colors.black,
       body: Column(
         children: [
-          // 1. TOP APP BAR
+          // TOP APP BAR
           Container(
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -55,7 +55,7 @@ class _ProductScreenState extends State<ProductScreen> {
             ),
           ),
 
-          // 2. DYNAMIC IMAGE SECTION WITH HERO ANIMATION
+          //  DYNAMIC IMAGE SECTION WITH HERO ANIMATION
           Expanded(
             flex: 5,
             child: Container(
@@ -107,7 +107,7 @@ class _ProductScreenState extends State<ProductScreen> {
             ),
           ),
 
-          // 3. PRODUCT DETAILS & DYNAMIC SIZE SELECTOR
+          //  PRODUCT DETAILS & DYNAMIC SIZE SELECTOR
           Expanded(
             flex: 4,
             child: Container(
@@ -187,7 +187,7 @@ class _ProductScreenState extends State<ProductScreen> {
             ),
           ),
 
-          // 4. ADD TO CART BUTTON
+          //  ADD TO CART BUTTON
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 20),
             child: ElevatedButton(
