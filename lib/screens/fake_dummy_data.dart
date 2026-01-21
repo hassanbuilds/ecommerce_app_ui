@@ -1,9 +1,8 @@
-// 1. CORRECTED PRODUCT MODEL
 class Product {
   final String title;
   final String category;
   final String price;
-  final List<String> images; // Changed String to List<String>
+  final List<String> images;
   final String description;
   final double height;
   bool isFavorite;
@@ -19,7 +18,7 @@ class Product {
   });
 }
 
-// 2. CORRECTED DUMMY DATA CHART
+// 2. DUMMY DATA CHART
 List<Product> allProducts = [
   // TRENDING
   Product(
