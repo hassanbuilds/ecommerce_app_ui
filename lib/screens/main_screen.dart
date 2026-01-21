@@ -11,11 +11,17 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   String selectedCategory = "Trending";
-  String searchQuery = ""; // New state for search
+  String searchQuery = "";
 
   @override
   Widget build(BuildContext context) {
-    // 1. FILTER LOGIC: Filter by category AND Search text
+    // 1. RESPONSIVE CALCULATIONS
+    final size = MediaQuery.of(context).size;
+    final bool isWeb = size.width > 800;
+
+    // Dynamic Column Count: 2 for mobile, 4 for tablet, 6 for large desktop
+    int crossAxisCount = isWeb ? (size.width > 1200 ? 6 : 4) : 2;
+
     List<Product> displayedProducts = allProducts.where((p) {
       final matchesCategory = p.category == selectedCategory;
       final matchesSearch = p.title.toLowerCase().contains(
@@ -25,153 +31,243 @@ class _MainScreenState extends State<MainScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: Colors.black, // Background stays black
+      backgroundColor: Colors.black,
       resizeToAvoidBottomInset: false,
-      body: Column(
-        children: [
-          // --- TOP SECTION (App Bar & Search) ---
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE5E5E0),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(25),
-                bottomRight: Radius.circular(25),
-              ),
-            ),
-            padding: const EdgeInsets.fromLTRB(20, 60, 20, 25),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Icon(Icons.menu, color: Colors.black, size: 28),
-                    const Text(
-                      'Lumière',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    _buildCartIcon(),
-                  ],
-                ),
-                const SizedBox(height: 25),
-                // SEARCH BAR
-                TextField(
-                  onChanged: (value) {
-                    setState(() {
-                      searchQuery = value; // Updates UI as you type
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: "Search your needs",
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide.none,
+      body: Center(
+        // Keeps content centered on wide screens
+        child: Container(
+          // Limit width on web for a professional "Storefront" look
+          constraints: BoxConstraints(maxWidth: isWeb ? 1400 : double.infinity),
+          child: Column(
+            children: [
+              // --- TOP SECTION ---
+              _buildTopHeader(isWeb),
+
+              // --- MAIN CONTENT SECTION ---
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(35)),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(35),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 25),
+                        _buildCategoryList(),
+                        const SizedBox(height: 20),
+
+                        // The Responsive Grid
+                        Expanded(
+                          child: displayedProducts.isEmpty
+                              ? const Center(child: Text("No products found"))
+                              : GridView.builder(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 10,
+                                  ),
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: crossAxisCount,
+                                        crossAxisSpacing: 15,
+                                        mainAxisSpacing: 20,
+                                        childAspectRatio: isWeb
+                                            ? 0.75
+                                            : 0.65, // Adjust for image shape
+                                      ),
+                                  itemCount: displayedProducts.length,
+                                  itemBuilder: (context, index) {
+                                    return _buildManualCard(
+                                      context,
+                                      displayedProducts[index],
+                                      isWeb,
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-
-          // --- MAIN CONTENT SECTION (Now Curved at Top and Bottom) ---
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(35),
-                ), // Curve both ways
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(35),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 25),
-                    _buildCategoryList(),
-                    const SizedBox(height: 20),
 
-                    // The Dynamic Staggered Grid
-                    Expanded(
-                      child: displayedProducts.isEmpty
-                          ? const Center(child: Text("No products found"))
-                          : SingleChildScrollView(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Left Column
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        for (
-                                          int i = 0;
-                                          i < displayedProducts.length;
-                                          i += 2
-                                        )
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              bottom: 20,
-                                            ),
-                                            child: _buildManualCard(
-                                              context,
-                                              displayedProducts[i],
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  // Right Column
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        for (
-                                          int i = 1;
-                                          i < displayedProducts.length;
-                                          i += 2
-                                        )
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              bottom: 20,
-                                            ),
-                                            child: _buildManualCard(
-                                              context,
-                                              displayedProducts[i],
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                    ),
-                  ],
+              // --- FLOATING BOTTOM NAV BAR ---
+              _buildBottomNavBar(isWeb),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- REFACTORED HEADER ---
+  Widget _buildTopHeader(bool isWeb) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Color(0xFFE5E5E0),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(25),
+          bottomRight: Radius.circular(25),
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(20, isWeb ? 30 : 60, 20, 25),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(Icons.menu, color: Colors.black, size: 28),
+              const Text(
+                'Lumière',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
                 ),
               ),
+              _buildCartIcon(),
+            ],
+          ),
+          const SizedBox(height: 25),
+          TextField(
+            onChanged: (value) => setState(() => searchQuery = value),
+            decoration: InputDecoration(
+              hintText: "Search your needs",
+              prefixIcon: const Icon(Icons.search, color: Colors.grey),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide.none,
+              ),
             ),
           ),
-
-          // --- FLOATING BOTTOM NAV BAR ---
-          _buildBottomNavBar(),
         ],
       ),
     );
   }
 
-  // --- WIDGET HELPERS ---
+  // --- REFACTORED CARD ---
+  Widget _buildManualCard(BuildContext context, Product product, bool isWeb) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductScreen(product: product),
+          ),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            // Important for GridView
+            child: Hero(
+              tag: product.title,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F3F3),
+                  borderRadius: BorderRadius.circular(25),
+                  image: DecorationImage(
+                    image: AssetImage(product.images[0]),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: GestureDetector(
+                        onTap: () => setState(
+                          () => product.isFavorite = !product.isFavorite,
+                        ),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white.withOpacity(0.8),
+                          radius: 16,
+                          child: Icon(
+                            product.isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: product.isFavorite
+                                ? Colors.red
+                                : Colors.black,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            product.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+          Text(
+            product.price,
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- CATEGORIES, CART, NAV REMAIN SIMILAR ---
+  // (Keep your existing _buildCategoryList, _buildCartIcon, _buildNavIcon)
+
+  Widget _buildBottomNavBar(bool isWeb) {
+    return Container(
+      height: 70,
+      width: isWeb
+          ? 400
+          : double.infinity, // Don't let nav bar be too wide on web
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildNavIcon(Icons.home_filled, true),
+          _buildNavIcon(Icons.favorite_border, false),
+          _buildNavIcon(Icons.notifications_none, false),
+          _buildNavIcon(Icons.person_outline, false),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavIcon(IconData icon, bool isActive) {
+    return Icon(
+      icon,
+      color: isActive ? Colors.black : Colors.grey.shade400,
+      size: 28,
+    );
+  }
 
   Widget _buildCartIcon() {
     return Stack(
@@ -234,112 +330,6 @@ class _MainScreenState extends State<MainScreen> {
           );
         },
       ),
-    );
-  }
-
-  Widget _buildManualCard(BuildContext context, Product product) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductScreen(product: product),
-          ),
-        );
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Hero(
-            tag: product.title, // HERO ANIMATION TAG
-            child: Container(
-              height: product.height,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F3F3),
-                borderRadius: BorderRadius.circular(25),
-                image: DecorationImage(
-                  image: AssetImage(product.images[0]),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: GestureDetector(
-                      onTap: () => setState(
-                        () => product.isFavorite = !product.isFavorite,
-                      ),
-                      child: CircleAvatar(
-                        backgroundColor: Colors.white.withOpacity(0.8),
-                        radius: 16,
-                        child: Icon(
-                          product.isFavorite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: product.isFavorite ? Colors.red : Colors.black,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            product.title,
-            maxLines: 1,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
-          Text(
-            product.price,
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNavBar() {
-    return Container(
-      height: 70,
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 25), // MAKES IT FLOAT
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildNavIcon(Icons.home_filled, true),
-          _buildNavIcon(Icons.favorite_border, false),
-          _buildNavIcon(Icons.notifications_none, false),
-          _buildNavIcon(Icons.person_outline, false),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavIcon(IconData icon, bool isActive) {
-    return Icon(
-      icon,
-      color: isActive ? Colors.black : Colors.grey.shade400,
-      size: 28,
     );
   }
 }
