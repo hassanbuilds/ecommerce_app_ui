@@ -8,6 +8,7 @@ class Product {
   final double height;
   bool isFavorite;
   bool isInCart;
+  int quantity;
 
   Product({
     required this.id, // Add this
@@ -19,6 +20,7 @@ class Product {
     required this.height,
     this.isFavorite = false,
     this.isInCart = false,
+    this.quantity = 1,
   });
 }
 
