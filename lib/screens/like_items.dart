@@ -12,7 +12,10 @@ class FavoritesScreen extends StatefulWidget {
 class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
-    // FILTER: Only get products where isFavorite is true
+    final size = MediaQuery.of(context).size;
+    final bool isWeb = size.width > 800;
+    int crossAxisCount = isWeb ? (size.width > 1200 ? 5 : 4) : 2;
+
     final favoriteProducts = allProducts.where((p) => p.isFavorite).toList();
 
     return Scaffold(
@@ -27,22 +30,25 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: favoriteProducts.isEmpty
-          ? _buildEmptyState()
-          : GridView.builder(
-              padding: const EdgeInsets.all(20),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.7,
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 15,
-              ),
-              itemCount: favoriteProducts.length,
-              itemBuilder: (context, index) {
-                final product = favoriteProducts[index];
-                return _buildFavoriteCard(product);
-              },
-            ),
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: isWeb ? 1200 : double.infinity),
+          child: favoriteProducts.isEmpty
+              ? _buildEmptyState()
+              : GridView.builder(
+                  padding: const EdgeInsets.all(20),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    childAspectRatio: isWeb ? 0.8 : 0.7,
+                    crossAxisSpacing: 15,
+                    mainAxisSpacing: 15,
+                  ),
+                  itemCount: favoriteProducts.length,
+                  itemBuilder: (context, index) =>
+                      _buildFavoriteCard(favoriteProducts[index], isWeb),
+                ),
+        ),
+      ),
     );
   }
 
@@ -61,14 +67,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 5),
           const Text("Start liking items to see them here!"),
         ],
       ),
     );
   }
 
-  Widget _buildFavoriteCard(Product product) {
+  Widget _buildFavoriteCard(Product product, bool isWeb) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -76,9 +81,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           MaterialPageRoute(
             builder: (context) => ProductScreen(product: product),
           ),
-        ).then(
-          (_) => setState(() {}),
-        ); // Refresh when coming back in case they unliked it
+        ).then((_) => setState(() {}));
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,7 +90,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             child: Stack(
               children: [
                 Hero(
-                  tag: product.title,
+                  // FIX: Synchronized unique tag
+                  tag: 'product_${product.id}',
                   child: Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFFF3F3F3),
@@ -99,16 +103,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     ),
                   ),
                 ),
-                // Unlike button
                 Positioned(
                   top: 10,
                   right: 10,
                   child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        product.isFavorite = false;
-                      });
-                    },
+                    onTap: () => setState(() => product.isFavorite = false),
                     child: const CircleAvatar(
                       backgroundColor: Colors.white,
                       radius: 15,
@@ -124,6 +123,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             product.title,
             style: const TextStyle(fontWeight: FontWeight.bold),
             maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           Text(product.price, style: TextStyle(color: Colors.grey.shade600)),
         ],

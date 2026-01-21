@@ -1,4 +1,5 @@
 import 'package:ecommerce_app/screens/fake_dummy_data.dart';
+import 'package:ecommerce_app/screens/like_items.dart';
 import 'package:flutter/material.dart';
 import 'product_screen.dart';
 
@@ -15,11 +16,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. RESPONSIVE CALCULATIONS
     final size = MediaQuery.of(context).size;
     final bool isWeb = size.width > 800;
-
-    // Dynamic Column Count: 2 for mobile, 4 for tablet, 6 for large desktop
     int crossAxisCount = isWeb ? (size.width > 1200 ? 6 : 4) : 2;
 
     List<Product> displayedProducts = allProducts.where((p) {
@@ -32,18 +30,12 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      resizeToAvoidBottomInset: false,
       body: Center(
-        // Keeps content centered on wide screens
         child: Container(
-          // Limit width on web for a professional "Storefront" look
           constraints: BoxConstraints(maxWidth: isWeb ? 1400 : double.infinity),
           child: Column(
             children: [
-              // --- TOP SECTION ---
               _buildTopHeader(isWeb),
-
-              // --- MAIN CONTENT SECTION ---
               Expanded(
                 child: Container(
                   width: double.infinity,
@@ -59,8 +51,6 @@ class _MainScreenState extends State<MainScreen> {
                         const SizedBox(height: 25),
                         _buildCategoryList(),
                         const SizedBox(height: 20),
-
-                        // The Responsive Grid
                         Expanded(
                           child: displayedProducts.isEmpty
                               ? const Center(child: Text("No products found"))
@@ -74,18 +64,14 @@ class _MainScreenState extends State<MainScreen> {
                                         crossAxisCount: crossAxisCount,
                                         crossAxisSpacing: 15,
                                         mainAxisSpacing: 20,
-                                        childAspectRatio: isWeb
-                                            ? 0.75
-                                            : 0.65, // Adjust for image shape
+                                        childAspectRatio: isWeb ? 0.75 : 0.65,
                                       ),
                                   itemCount: displayedProducts.length,
-                                  itemBuilder: (context, index) {
-                                    return _buildManualCard(
-                                      context,
-                                      displayedProducts[index],
-                                      isWeb,
-                                    );
-                                  },
+                                  itemBuilder: (context, index) =>
+                                      _buildProductCard(
+                                        context,
+                                        displayedProducts[index],
+                                      ),
                                 ),
                         ),
                       ],
@@ -93,8 +79,6 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
               ),
-
-              // --- FLOATING BOTTOM NAV BAR ---
               _buildBottomNavBar(isWeb),
             ],
           ),
@@ -103,57 +87,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // --- REFACTORED HEADER ---
-  Widget _buildTopHeader(bool isWeb) {
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Color(0xFFE5E5E0),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(25),
-          bottomRight: Radius.circular(25),
-        ),
-      ),
-      padding: EdgeInsets.fromLTRB(20, isWeb ? 30 : 60, 20, 25),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Icon(Icons.menu, color: Colors.black, size: 28),
-              const Text(
-                'Lumière',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              _buildCartIcon(),
-            ],
-          ),
-          const SizedBox(height: 25),
-          TextField(
-            onChanged: (value) => setState(() => searchQuery = value),
-            decoration: InputDecoration(
-              hintText: "Search your needs",
-              prefixIcon: const Icon(Icons.search, color: Colors.grey),
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(vertical: 0),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- REFACTORED CARD ---
-  Widget _buildManualCard(BuildContext context, Product product, bool isWeb) {
+  Widget _buildProductCard(BuildContext context, Product product) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -161,15 +95,15 @@ class _MainScreenState extends State<MainScreen> {
           MaterialPageRoute(
             builder: (context) => ProductScreen(product: product),
           ),
-        );
+        ).then((_) => setState(() {}));
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            // Important for GridView
             child: Hero(
-              tag: product.title,
+              // FIX: Unique tag using ID
+              tag: 'product_${product.id}',
               child: Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFFF3F3F3),
@@ -213,13 +147,12 @@ class _MainScreenState extends State<MainScreen> {
             product.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           Text(
             product.price,
             style: TextStyle(
               color: Colors.grey.shade600,
-              fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -228,15 +161,58 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // --- CATEGORIES, CART, NAV REMAIN SIMILAR ---
-  // (Keep your existing _buildCategoryList, _buildCartIcon, _buildNavIcon)
+  // --- Header, Nav, and Category Widgets remain largely the same, just ensure correct navigation calls ---
+  Widget _buildTopHeader(bool isWeb) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Color(0xFFE5E5E0),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(25),
+          bottomRight: Radius.circular(25),
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(20, isWeb ? 30 : 60, 20, 25),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(Icons.menu, color: Colors.black, size: 28),
+              const Text(
+                'Lumière',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              _buildCartIcon(),
+            ],
+          ),
+          const SizedBox(height: 25),
+          TextField(
+            onChanged: (value) => setState(() => searchQuery = value),
+            decoration: InputDecoration(
+              hintText: "Search your needs",
+              prefixIcon: const Icon(Icons.search, color: Colors.grey),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildBottomNavBar(bool isWeb) {
     return Container(
       height: 70,
-      width: isWeb
-          ? 400
-          : double.infinity, // Don't let nav bar be too wide on web
+      width: isWeb ? 450 : double.infinity,
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 25),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -252,43 +228,29 @@ class _MainScreenState extends State<MainScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildNavIcon(Icons.home_filled, true),
-          _buildNavIcon(Icons.favorite_border, false),
-          _buildNavIcon(Icons.notifications_none, false),
-          _buildNavIcon(Icons.person_outline, false),
+          _buildNavIcon(Icons.home_filled, true, () {}),
+          _buildNavIcon(Icons.favorite_border, false, () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FavoritesScreen()),
+            ).then((_) => setState(() {}));
+          }),
+          _buildNavIcon(Icons.notifications_none, false, () {}),
+          _buildNavIcon(Icons.person_outline, false, () {}),
         ],
       ),
     );
   }
 
-  Widget _buildNavIcon(IconData icon, bool isActive) {
-    return Icon(
-      icon,
-      color: isActive ? Colors.black : Colors.grey.shade400,
-      size: 28,
-    );
-  }
-
-  Widget _buildCartIcon() {
-    return Stack(
-      children: [
-        const Icon(Icons.shopping_bag_outlined, color: Colors.black, size: 28),
-        Positioned(
-          right: 0,
-          top: 0,
-          child: Container(
-            height: 10,
-            width: 10,
-            decoration: const BoxDecoration(
-              color: Colors.orange,
-              shape: BoxShape.circle,
-            ),
-          ),
+  Widget _buildNavIcon(IconData icon, bool isActive, VoidCallback onTap) =>
+      GestureDetector(
+        onTap: onTap,
+        child: Icon(
+          icon,
+          color: isActive ? Colors.black : Colors.grey.shade400,
+          size: 28,
         ),
-      ],
-    );
-  }
-
+      );
   Widget _buildCategoryList() {
     final List<String> categories = [
       "Trending",
@@ -332,4 +294,22 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
+
+  Widget _buildCartIcon() => Stack(
+    children: [
+      const Icon(Icons.shopping_bag_outlined, color: Colors.black, size: 28),
+      Positioned(
+        right: 0,
+        top: 0,
+        child: Container(
+          height: 10,
+          width: 10,
+          decoration: const BoxDecoration(
+            color: Colors.orange,
+            shape: BoxShape.circle,
+          ),
+        ),
+      ),
+    ],
+  );
 }

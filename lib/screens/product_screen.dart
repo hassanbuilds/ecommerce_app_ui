@@ -15,7 +15,6 @@ class _ProductScreenState extends State<ProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. RESPONSIVE LOGIC
     final size = MediaQuery.of(context).size;
     final bool isWeb = size.width > 850;
 
@@ -23,21 +22,11 @@ class _ProductScreenState extends State<ProductScreen> {
       backgroundColor: Colors.black,
       body: Center(
         child: Container(
-          // Constraints for ultra-wide monitors
           constraints: BoxConstraints(maxWidth: isWeb ? 1200 : double.infinity),
           child: Column(
             children: [
-              // --- TOP APP BAR ---
               _buildAppBar(context, isWeb),
-
-              // --- MAIN BODY ---
-              Expanded(
-                child: isWeb
-                    ? _buildWebLayout() // Side-by-side for Web
-                    : _buildMobileLayout(), // Vertical for Mobile
-              ),
-
-              // --- BOTTOM BUTTON (Only for Mobile) ---
+              Expanded(child: isWeb ? _buildWebLayout() : _buildMobileLayout()),
               if (!isWeb) _buildAddToCartButton(false),
             ],
           ),
@@ -46,24 +35,21 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  // WEB LAYOUT: Image Left, Details Right
   Widget _buildWebLayout() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Left: Image Section
           Expanded(flex: 6, child: _buildImageSection(true)),
           const SizedBox(width: 20),
-          // Right: Details Section
           Expanded(
             flex: 4,
             child: Column(
               children: [
                 Expanded(child: _buildDetailsSection(true)),
                 const SizedBox(height: 20),
-                _buildAddToCartButton(true), // Fixed to bottom of right column
+                _buildAddToCartButton(true),
                 const SizedBox(height: 10),
               ],
             ),
@@ -73,7 +59,6 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  // MOBILE LAYOUT: Image Top, Details Bottom
   Widget _buildMobileLayout() {
     return Column(
       children: [
@@ -82,8 +67,6 @@ class _ProductScreenState extends State<ProductScreen> {
       ],
     );
   }
-
-  // --- COMPONENT WIDGETS ---
 
   Widget _buildAppBar(BuildContext context, bool isWeb) {
     return Container(
@@ -129,7 +112,8 @@ class _ProductScreenState extends State<ProductScreen> {
         children: [
           Center(
             child: Hero(
-              tag: widget.product.title,
+              // FIX: Must match MainScreen tag
+              tag: 'product_${widget.product.id}',
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Image.asset(
@@ -139,7 +123,6 @@ class _ProductScreenState extends State<ProductScreen> {
               ),
             ),
           ),
-          // Thumbnail List (Changes orientation for Web)
           Positioned(
             right: 15,
             top: 0,
@@ -210,19 +193,20 @@ class _ProductScreenState extends State<ProductScreen> {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          // Scrollable sizes if they don't fit
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: ["XS", "S", "M", "L", "XL", "XXL"].map((size) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: GestureDetector(
-                    onTap: () => setState(() => selectedSize = size),
-                    child: _buildSizeChip(size, selectedSize == size),
-                  ),
-                );
-              }).toList(),
+              children: ["XS", "S", "M", "L", "XL", "XXL"]
+                  .map(
+                    (size) => Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: GestureDetector(
+                        onTap: () => setState(() => selectedSize = size),
+                        child: _buildSizeChip(size, selectedSize == size),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
           ),
           const SizedBox(height: 20),
@@ -248,81 +232,63 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  Widget _buildAddToCartButton(bool isWeb) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 12),
-      child: ElevatedButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Added $selectedSize to cart!")),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFC7C7B1),
-          minimumSize: const Size(double.infinity, 70),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-          elevation: 0,
-        ),
-        child: const Text(
-          "Add to cart",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+  Widget _buildAddToCartButton(bool isWeb) => Padding(
+    padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 12),
+    child: ElevatedButton(
+      onPressed: () {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Added $selectedSize to cart!")));
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFFC7C7B1),
+        minimumSize: const Size(double.infinity, 70),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        elevation: 0,
       ),
-    );
-  }
-
-  // --- HELPERS ---
-
-  Widget _buildCircleIcon(IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: const BoxDecoration(
-        color: Color(0xFFE5E5E0),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(icon, color: Colors.black, size: 22),
-    );
-  }
-
-  Widget _buildThumbnail(bool isSelected, String path) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      height: 60,
-      width: 60,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        image: DecorationImage(image: AssetImage(path), fit: BoxFit.cover),
-        border: isSelected ? Border.all(color: Colors.black, width: 2) : null,
-        boxShadow: isSelected
-            ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]
-            : null,
-      ),
-    );
-  }
-
-  Widget _buildSizeChip(String size, bool isSelected) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.black : Colors.white.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Text(
-        size,
+      child: const Text(
+        "Add to cart",
         style: TextStyle(
-          color: isSelected ? Colors.white : Colors.black,
+          color: Colors.black,
+          fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
       ),
-    );
-  }
+    ),
+  );
+  Widget _buildCircleIcon(IconData icon) => Container(
+    padding: const EdgeInsets.all(10),
+    decoration: const BoxDecoration(
+      color: Color(0xFFE5E5E0),
+      shape: BoxShape.circle,
+    ),
+    child: Icon(icon, color: Colors.black, size: 22),
+  );
+  Widget _buildThumbnail(bool isSelected, String path) => AnimatedContainer(
+    duration: const Duration(milliseconds: 300),
+    margin: const EdgeInsets.symmetric(vertical: 5),
+    height: 60,
+    width: 60,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(15),
+      image: DecorationImage(image: AssetImage(path), fit: BoxFit.cover),
+      border: isSelected ? Border.all(color: Colors.black, width: 2) : null,
+    ),
+  );
+  Widget _buildSizeChip(String size, bool isSelected) => AnimatedContainer(
+    duration: const Duration(milliseconds: 200),
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    decoration: BoxDecoration(
+      color: isSelected ? Colors.black : Colors.white.withOpacity(0.5),
+      borderRadius: BorderRadius.circular(15),
+    ),
+    child: Text(
+      size,
+      style: TextStyle(
+        color: isSelected ? Colors.white : Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  );
 }
