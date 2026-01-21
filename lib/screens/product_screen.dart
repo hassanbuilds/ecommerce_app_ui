@@ -104,7 +104,7 @@ class _ProductScreenState extends State<ProductScreen> {
   // --- NEW CART BADGE LOGIC ---
   Widget _buildCartBadge() {
     // Count how many products in our global list have isInCart = true
-    int totalInCart = allProducts.where((p) => p.isInChart).length;
+    int totalInCart = allProducts.where((p) => p.isInCart).length;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -117,7 +117,7 @@ class _ProductScreenState extends State<ProductScreen> {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(
-                color: Colors.orange,
+                color: Colors.red,
                 shape: BoxShape.circle,
               ),
               constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
@@ -268,7 +268,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
   // --- UPDATED ADD/REMOVE BUTTON ---
   Widget _buildAddToCartButton(bool isWeb) {
-    bool alreadyInCart = widget.product.isInChart;
+    bool alreadyInCart = widget.product.isInCart;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 12, vertical: 10),
@@ -276,7 +276,7 @@ class _ProductScreenState extends State<ProductScreen> {
         onPressed: () {
           setState(() {
             // Toggles the cart status
-            widget.product.isInChart = !widget.product.isInChart;
+            widget.product.isInCart = !widget.product.isInCart;
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
