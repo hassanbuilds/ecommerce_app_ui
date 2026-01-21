@@ -2,6 +2,7 @@ import 'package:ecommerce_app/screens/fake_dummy_data.dart';
 import 'package:ecommerce_app/screens/like_items.dart';
 import 'package:flutter/material.dart';
 import 'product_screen.dart';
+import 'cart .dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
