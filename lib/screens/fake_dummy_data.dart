@@ -7,6 +7,7 @@ class Product {
   final String description;
   final double height;
   bool isFavorite;
+  bool isInChart;
 
   Product({
     required this.id, // Add this
@@ -17,6 +18,7 @@ class Product {
     required this.description,
     required this.height,
     this.isFavorite = false,
+    this.isInChart = false,
   });
 }
 
