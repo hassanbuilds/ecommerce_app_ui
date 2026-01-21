@@ -1,9 +1,18 @@
 import 'package:ecommerce_app/screens/fake_dummy_data.dart';
 import 'package:flutter/material.dart';
 
-class ProductScreen extends StatelessWidget {
+class ProductScreen extends StatefulWidget {
   final Product product;
   const ProductScreen({super.key, required this.product});
+
+  @override
+  State<ProductScreen> createState() => _ProductScreenState();
+}
+
+class _ProductScreenState extends State<ProductScreen> {
+  // DYNAMIC STATE: These track what the user selects
+  String selectedSize = "M";
+  int selectedImageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +20,7 @@ class ProductScreen extends StatelessWidget {
       backgroundColor: Colors.black,
       body: Column(
         children: [
-          // 1. WHITE TOP APP BAR
+          // 1. TOP APP BAR
           Container(
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -24,7 +33,7 @@ class ProductScreen extends StatelessWidget {
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(25, 25, 25, 25),
+                padding: const EdgeInsets.all(25),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -35,7 +44,6 @@ class ProductScreen extends StatelessWidget {
                     const Text(
                       'Product',
                       style: TextStyle(
-                        color: Colors.black,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -47,7 +55,7 @@ class ProductScreen extends StatelessWidget {
             ),
           ),
 
-          // 2. DYNAMIC IMAGE CARD
+          // 2. DYNAMIC IMAGE SECTION WITH HERO ANIMATION
           Expanded(
             flex: 5,
             child: Container(
@@ -55,13 +63,23 @@ class ProductScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFFE5E5E0),
                 borderRadius: BorderRadius.circular(30),
-                image: DecorationImage(
-                  image: AssetImage(product.images[0]),
-                  fit: BoxFit.contain,
-                ),
               ),
               child: Stack(
                 children: [
+                  // Main Hero Image
+                  Center(
+                    child: Hero(
+                      tag: widget
+                          .product
+                          .title, // Must match the tag in MainScreen!
+                      child: Image.asset(
+                        widget.product.images[selectedImageIndex],
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+
+                  // Side Thumbnails (Vertical List)
                   Positioned(
                     right: 15,
                     top: 0,
@@ -69,9 +87,18 @@ class ProductScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
-                        5,
-                        (index) =>
-                            _buildThumbnail(index == 1, product.images[0]),
+                        widget.product.images.length,
+                        (index) => GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedImageIndex = index;
+                            });
+                          },
+                          child: _buildThumbnail(
+                            selectedImageIndex == index,
+                            widget.product.images[index],
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -80,7 +107,7 @@ class ProductScreen extends StatelessWidget {
             ),
           ),
 
-          // 3. DYNAMIC PRODUCT DETAILS
+          // 3. PRODUCT DETAILS & DYNAMIC SIZE SELECTOR
           Expanded(
             flex: 4,
             child: Container(
@@ -100,14 +127,11 @@ class ProductScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            product.category,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black54,
-                            ),
+                            widget.product.category,
+                            style: const TextStyle(color: Colors.black54),
                           ),
                           Text(
-                            product.title,
+                            widget.product.title,
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -116,7 +140,7 @@ class ProductScreen extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        product.price,
+                        widget.product.price,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -130,23 +154,27 @@ class ProductScreen extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
+
+                  // Dynamic Size Chips
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      "XS",
-                      "S",
-                      "M",
-                      "L",
-                      "XL",
-                      "XXL",
-                      "3XL",
-                    ].map((s) => _buildSizeChip(s, s == "M")).toList(),
+                    children: ["XS", "S", "M", "L", "XL", "XXL"].map((size) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedSize = size;
+                          });
+                        },
+                        child: _buildSizeChip(size, selectedSize == size),
+                      );
+                    }).toList(),
                   ),
+
                   const SizedBox(height: 15),
                   Expanded(
                     child: SingleChildScrollView(
                       child: Text(
-                        product.description,
+                        widget.product.description,
                         style: const TextStyle(
                           color: Colors.black54,
                           height: 1.4,
@@ -159,11 +187,15 @@ class ProductScreen extends StatelessWidget {
             ),
           ),
 
-          // 4. BUTTON
+          // 4. ADD TO CART BUTTON
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 20),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Added $selectedSize to cart!")),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFC7C7B1),
                 minimumSize: const Size(double.infinity, 70),
@@ -187,6 +219,8 @@ class ProductScreen extends StatelessWidget {
     );
   }
 
+  // --- REUSABLE WIDGETS ---
+
   Widget _buildCircleIcon(IconData icon) {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -199,7 +233,8 @@ class ProductScreen extends StatelessWidget {
   }
 
   Widget _buildThumbnail(bool isSelected, String path) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(vertical: 5),
       height: 55,
       width: 55,
@@ -207,24 +242,25 @@ class ProductScreen extends StatelessWidget {
         color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(15),
         image: DecorationImage(image: AssetImage(path), fit: BoxFit.cover),
-        border: isSelected ? Border.all(color: Colors.white, width: 2) : null,
+        border: isSelected ? Border.all(color: Colors.black, width: 2) : null,
       ),
     );
   }
 
   Widget _buildSizeChip(String size, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: isSelected ? Colors.black : Colors.transparent,
+        color: isSelected ? Colors.black : Colors.white.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
         border: isSelected ? null : Border.all(color: Colors.black12),
       ),
       child: Text(
         size,
         style: TextStyle(
-          color: isSelected ? Colors.white : Colors.black54,
-          fontSize: 11,
+          color: isSelected ? Colors.white : Colors.black,
+          fontSize: 12,
           fontWeight: FontWeight.bold,
         ),
       ),
