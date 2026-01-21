@@ -49,8 +49,58 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 ),
         ),
       ),
+      // --- ADDED THIS LINE ---
+      bottomNavigationBar: _buildBottomNavBar(isWeb),
     );
   }
+
+  // --- NAVIGATION BAR WIDGETS ---
+
+  Widget _buildBottomNavBar(bool isWeb) {
+    return Container(
+      height: 70,
+      // On web, keep it centered and small. On mobile, full width.
+      width: isWeb ? 450 : double.infinity,
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          // HOME ICON: Clicking this goes back to Main Screen
+          _buildNavIcon(Icons.home_filled, false, () {
+            Navigator.pop(context);
+          }),
+          // FAVORITE ICON: Active here
+          _buildNavIcon(Icons.favorite, true, () {}),
+          _buildNavIcon(Icons.notifications_none, false, () {}),
+          _buildNavIcon(Icons.person_outline, false, () {}),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavIcon(IconData icon, bool isActive, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Icon(
+        icon,
+        color: isActive ? Colors.black : Colors.grey.shade400,
+        size: 28,
+      ),
+    );
+  }
+
+  // --- YOUR EXISTING CARD/EMPTY STATE WIDGETS ---
 
   Widget _buildEmptyState() {
     return Center(
@@ -90,7 +140,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             child: Stack(
               children: [
                 Hero(
-                  // FIX: Synchronized unique tag
                   tag: 'product_${product.id}',
                   child: Container(
                     decoration: BoxDecoration(
