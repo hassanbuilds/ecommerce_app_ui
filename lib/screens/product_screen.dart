@@ -296,7 +296,7 @@ class _ProductScreenState extends State<ProductScreen> {
         style: ElevatedButton.styleFrom(
           // Change color to indicate state
           backgroundColor: alreadyInCart
-              ? Colors.black
+              ? Color(0xFFC7C7B1)
               : const Color(0xFFC7C7B1),
           minimumSize: const Size(double.infinity, 70),
           shape: RoundedRectangleBorder(
