@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Lumiere App',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const SplashScreen(), // App starts with Splash
+      home: const SplashScreen(),
     );
   }
 }
