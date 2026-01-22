@@ -9,6 +9,7 @@ class Product {
   bool isFavorite;
   bool isInCart;
   int quantity;
+  String? isSelected;
 
   Product({
     required this.id,
@@ -21,6 +22,7 @@ class Product {
     this.isFavorite = false,
     this.isInCart = false,
     this.quantity = 1,
+    this.isSelected,
   });
 }
 
