@@ -54,7 +54,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  // --- NAVIGATION BAR WIDGETS ---
+  // NAVIGATION BAR WIDGETS
 
   Widget _buildBottomNavBar(bool isWeb) {
     return Container(
@@ -100,7 +100,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  // --- YOUR EXISTING CARD/EMPTY STATE WIDGETS ---
+  // YOUR EXISTING CARD/EMPTY STATE WIDGETS
 
   Widget _buildEmptyState() {
     return Center(
