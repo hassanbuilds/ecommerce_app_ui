@@ -1,5 +1,5 @@
 class Product {
-  final String id; // Add this
+  final String id;
   final String title;
   final String category;
   final String price;
@@ -11,7 +11,7 @@ class Product {
   int quantity;
 
   Product({
-    required this.id, // Add this
+    required this.id,
     required this.title,
     required this.category,
     required this.price,
