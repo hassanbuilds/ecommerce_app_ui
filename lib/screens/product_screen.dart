@@ -37,7 +37,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  // --- APP BAR WITH DYNAMIC BADGE ---
+  // APP BAR WITH DYNAMIC BADGE
   Widget _buildAppBar(BuildContext context, bool isWeb) {
     return Container(
       width: double.infinity,
@@ -116,7 +116,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  // --- LAYOUTS ---
+  // LAYOUTS
   Widget _buildWebLayout() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -150,7 +150,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  // --- CONTENT SECTIONS ---
+  //  CONTENT SECTIONS
   Widget _buildImageSection(bool isWeb) {
     return Container(
       margin: EdgeInsets.all(isWeb ? 0 : 12),
@@ -281,7 +281,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  // --- UPDATED MULTI-SIZE CART LOGIC ---
+  // UPDATED MULTI-SIZE CART LOGIC
   Widget _buildAddToCartButton(bool isWeb) {
     // Check if the CURRENT selected size is already in the list
     bool isThisSpecificSizeInCart = widget.product.cartEntries.any(
@@ -343,7 +343,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  // --- HELPERS ---
+  // HELPERS
   Widget _buildCircleIcon(IconData icon) => Container(
     padding: const EdgeInsets.all(10),
     decoration: const BoxDecoration(
