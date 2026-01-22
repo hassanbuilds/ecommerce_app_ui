@@ -21,6 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     final bool isWeb = size.width > 800;
     int crossAxisCount = isWeb ? (size.width > 1200 ? 6 : 4) : 2;
 
+    // Filter logic based on category and search text
     List<Product> displayedProducts = allProducts.where((p) {
       final matchesCategory = p.category == selectedCategory;
       final matchesSearch = p.title.toLowerCase().contains(
@@ -113,7 +114,7 @@ class _MainScreenState extends State<MainScreen> {
                   letterSpacing: 1.2,
                 ),
               ),
-              _buildCartIcon(), // Dynamic Cart Icon
+              _buildCartIcon(),
             ],
           ),
           const SizedBox(height: 25),
@@ -135,16 +136,19 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  //  UPDATED DYNAMIC CART ICON
+  // FIXED: Logic to use cartEntries instead of isInCart
   Widget _buildCartIcon() {
-    int totalInCart = allProducts.where((p) => p.isInCart).length;
+    int totalItemsInCart = allProducts.fold(
+      0,
+      (sum, p) => sum + p.cartEntries.length,
+    );
 
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const CartScreen()),
-        ).then((_) => setState(() {})); // Update UI when returning from cart
+        ).then((_) => setState(() {}));
       },
       child: Stack(
         clipBehavior: Clip.none,
@@ -154,7 +158,7 @@ class _MainScreenState extends State<MainScreen> {
             color: Colors.black,
             size: 28,
           ),
-          if (totalInCart > 0)
+          if (totalItemsInCart > 0)
             Positioned(
               right: -2,
               top: -2,
@@ -166,7 +170,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
                 child: Text(
-                  '$totalInCart',
+                  '$totalItemsInCart',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 10,

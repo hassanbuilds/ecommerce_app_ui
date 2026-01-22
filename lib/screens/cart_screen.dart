@@ -18,18 +18,26 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
-  // Calculate the grand total
+  // FIXED: Calculate total by iterating through every entry of every product
   double get totalAmount {
     double total = 0;
-    for (var product in allProducts.where((p) => p.isInCart)) {
-      total += _parsePrice(product.price) * product.quantity;
+    for (var product in allProducts) {
+      for (var entry in product.cartEntries) {
+        total += _parsePrice(product.price) * entry.quantity;
+      }
     }
     return total;
   }
 
   @override
   Widget build(BuildContext context) {
-    final cartItems = allProducts.where((p) => p.isInCart).toList();
+    // Create a flat list of all entries to display them individually in the ListView
+    List<Map<String, dynamic>> flatCartList = [];
+    for (var product in allProducts) {
+      for (var entry in product.cartEntries) {
+        flatCartList.add({'product': product, 'entry': entry});
+      }
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -46,15 +54,17 @@ class _CartScreenState extends State<CartScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: cartItems.isEmpty
+      body: flatCartList.isEmpty
           ? _buildEmptyCart()
           : Column(
               children: [
                 Expanded(
                   child: ListView.builder(
-                    itemCount: cartItems.length,
-                    itemBuilder: (context, index) =>
-                        _buildCartItem(cartItems[index]),
+                    itemCount: flatCartList.length,
+                    itemBuilder: (context, index) {
+                      final item = flatCartList[index];
+                      return _buildCartItem(item['product'], item['entry']);
+                    },
                   ),
                 ),
                 _buildCheckoutSection(),
@@ -63,7 +73,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildCartItem(Product product) {
+  Widget _buildCartItem(Product product, CartEntry entry) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(12),
@@ -73,7 +83,7 @@ class _CartScreenState extends State<CartScreen> {
       ),
       child: Row(
         children: [
-          // Product Image
+          // Image
           Container(
             height: 90,
             width: 90,
@@ -102,60 +112,68 @@ class _CartScreenState extends State<CartScreen> {
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
-                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    //  DELETE BUTTON
+                    // Trash Icon to Delete this specific size entry
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          product.isInCart = false;
+                          product.cartEntries.remove(entry);
                         });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("${product.title} removed"),
-                            duration: const Duration(seconds: 1),
-                          ),
-                        );
                       },
                       child: const Icon(
                         Icons.delete_outline,
                         color: Colors.redAccent,
-                        size: 44,
+                        size: 24,
                       ),
                     ),
                   ],
                 ),
+
+                // Displaying the specific size for this entry
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    "Size: ${entry.size}",
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 5),
                 Text(
                   product.price,
-                  style: const TextStyle(color: Colors.black54),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
                 const SizedBox(height: 10),
-                // Quantity Controls
+                // Quantity Controls for THIS entry
                 Row(
                   children: [
                     _buildQtyBtn(Icons.remove, () {
                       setState(() {
-                        if (product.quantity > 1) {
-                          product.quantity--;
+                        if (entry.quantity > 1) {
+                          entry.quantity--;
                         } else {
-                          product.isInCart = false;
+                          product.cartEntries.remove(entry);
                         }
                       });
                     }),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
-                        "${product.quantity}",
+                        "${entry.quantity}",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                     _buildQtyBtn(Icons.add, () {
-                      setState(() {
-                        product.quantity++;
-                      });
+                      setState(() => entry.quantity++);
                     }),
                   ],
                 ),
@@ -176,25 +194,21 @@ class _CartScreenState extends State<CartScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, size: 18, color: Colors.black),
+        child: Icon(icon, size: 18),
       ),
     );
   }
 
   Widget _buildEmptyCart() {
-    return Center(
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.shopping_cart_outlined,
-            size: 80,
-            color: Colors.grey.shade300,
-          ),
-          const SizedBox(height: 20),
-          const Text(
+          Icon(Icons.shopping_cart_outlined, size: 60, color: Colors.grey),
+          SizedBox(height: 10),
+          Text(
             "Your cart is empty",
-            style: TextStyle(fontSize: 18, color: Colors.grey),
+            style: TextStyle(color: Colors.grey, fontSize: 16),
           ),
         ],
       ),
@@ -204,12 +218,16 @@ class _CartScreenState extends State<CartScreen> {
   Widget _buildCheckoutSection() {
     return Container(
       padding: const EdgeInsets.all(25),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
-            offset: const Offset(0, -5),
+            offset: Offset(0, -5),
             blurRadius: 10,
           ),
         ],
@@ -222,7 +240,7 @@ class _CartScreenState extends State<CartScreen> {
             children: [
               const Text(
                 "Total Amount",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: TextStyle(color: Colors.grey, fontSize: 16),
               ),
               Text(
                 "€${totalAmount.toStringAsFixed(2)}",
@@ -233,19 +251,25 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 15),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              // Action for checkout
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
-              minimumSize: const Size(double.infinity, 65),
+              minimumSize: const Size(double.infinity, 60),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
             child: const Text(
               "Checkout Now",
-              style: TextStyle(color: Colors.white, fontSize: 18),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],

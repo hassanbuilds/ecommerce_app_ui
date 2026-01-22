@@ -1,3 +1,9 @@
+class CartEntry {
+  String size;
+  int quantity;
+  CartEntry({required this.size, this.quantity = 1});
+}
+
 class Product {
   final String id;
   final String title;
@@ -7,9 +13,9 @@ class Product {
   final String description;
   final double height;
   bool isFavorite;
-  bool isInCart;
-  int quantity;
-  String? isSelected;
+
+  // This stores each size/quantity combo for this product
+  List<CartEntry> cartEntries = [];
 
   Product({
     required this.id,
@@ -20,9 +26,6 @@ class Product {
     required this.description,
     required this.height,
     this.isFavorite = false,
-    this.isInCart = false,
-    this.quantity = 1,
-    this.isSelected,
   });
 }
 

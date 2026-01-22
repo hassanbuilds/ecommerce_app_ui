@@ -36,7 +36,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  // --- APP BAR WITH NAVIGATION ---
+  // --- APP BAR WITH DYNAMIC BADGE ---
   Widget _buildAppBar(BuildContext context, bool isWeb) {
     return Container(
       width: double.infinity,
@@ -71,14 +71,18 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget _buildCartBadge() {
-    int totalInCart = allProducts.where((p) => p.isInCart).length;
+    // Counts total entries across ALL products
+    int totalInCart = allProducts.fold(
+      0,
+      (sum, p) => sum + p.cartEntries.length,
+    );
 
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const CartScreen()),
-        ).then((_) => setState(() {})); // Refresh when coming back
+        ).then((_) => setState(() {})); // Refresh badge when returning
       },
       child: Stack(
         clipBehavior: Clip.none,
@@ -91,7 +95,7 @@ class _ProductScreenState extends State<ProductScreen> {
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: const BoxDecoration(
-                  color: Colors.red,
+                  color: Colors.orange, // Changed to match Main Screen theme
                   shape: BoxShape.circle,
                 ),
                 constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
@@ -276,36 +280,48 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
+  // --- UPDATED MULTI-SIZE CART LOGIC ---
   Widget _buildAddToCartButton(bool isWeb) {
-    bool alreadyInCart = widget.product.isInCart;
+    // Check if the CURRENT selected size is already in the list
+    bool isThisSpecificSizeInCart = widget.product.cartEntries.any(
+      (entry) => entry.size == selectedSize,
+    );
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 12, vertical: 10),
       child: ElevatedButton(
         onPressed: () {
           setState(() {
-            widget.product.isInCart = !widget.product.isInCart;
-            if (widget.product.isInCart) {
-              widget.product.quantity = 1;
+            if (isThisSpecificSizeInCart) {
+              // Remove only this specific size
+              widget.product.cartEntries.removeWhere(
+                (entry) => entry.size == selectedSize,
+              );
+            } else {
+              // Add this size as a new entry
+              widget.product.cartEntries.add(CartEntry(size: selectedSize));
             }
           });
 
+          ScaffoldMessenger.of(context).clearSnackBars(); // Prevent stacking
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                widget.product.isInCart
+                !isThisSpecificSizeInCart
                     ? "Added $selectedSize to cart!"
-                    : "Removed from cart",
+                    : "Removed $selectedSize from cart",
               ),
-              duration: const Duration(seconds: 1),
-              backgroundColor: widget.product.isInCart
-                  ? Colors.green
+              duration: const Duration(milliseconds: 800),
+              backgroundColor: !isThisSpecificSizeInCart
+                  ? Colors.black
                   : Colors.redAccent,
             ),
           );
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFC7C7B1),
+          backgroundColor: isThisSpecificSizeInCart
+              ? Colors.redAccent
+              : const Color(0xFFC7C7B1),
           minimumSize: const Size(double.infinity, 70),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
@@ -313,9 +329,11 @@ class _ProductScreenState extends State<ProductScreen> {
           elevation: 0,
         ),
         child: Text(
-          alreadyInCart ? "Remove from cart" : "Add to cart",
+          isThisSpecificSizeInCart
+              ? "Remove Size $selectedSize"
+              : "Add Size $selectedSize to Cart",
           style: TextStyle(
-            color: alreadyInCart ? Colors.white : Colors.black,
+            color: isThisSpecificSizeInCart ? Colors.white : Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
