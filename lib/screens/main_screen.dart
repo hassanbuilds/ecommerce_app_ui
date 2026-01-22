@@ -135,7 +135,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // --- UPDATED DYNAMIC CART ICON ---
+  //  UPDATED DYNAMIC CART ICON
   Widget _buildCartIcon() {
     int totalInCart = allProducts.where((p) => p.isInCart).length;
 

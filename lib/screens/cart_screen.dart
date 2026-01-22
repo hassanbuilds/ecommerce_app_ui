@@ -106,7 +106,7 @@ class _CartScreenState extends State<CartScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    // --- DELETE BUTTON ---
+                    //  DELETE BUTTON
                     GestureDetector(
                       onTap: () {
                         setState(() {
@@ -122,7 +122,7 @@ class _CartScreenState extends State<CartScreen> {
                       child: const Icon(
                         Icons.delete_outline,
                         color: Colors.redAccent,
-                        size: 22,
+                        size: 44,
                       ),
                     ),
                   ],
