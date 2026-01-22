@@ -103,7 +103,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           Expanded(
             child: Hero(
-              // FIX: Unique tag using ID
+              // Unique tag using ID
               tag: 'product_${product.id}',
               child: Container(
                 decoration: BoxDecoration(
@@ -162,7 +162,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // --- Header, Nav, and Category Widgets remain largely the same, just ensure correct navigation calls ---
+  //  Header, Nav, and Category Widgets remain largely the same, just ensure correct navigation calls
   Widget _buildTopHeader(bool isWeb) {
     return Container(
       width: double.infinity,
