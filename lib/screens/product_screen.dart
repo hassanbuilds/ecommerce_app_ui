@@ -93,7 +93,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 'Product Details',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              _buildCartBadge(), // <--- UPDATED THIS
+              _buildCartBadge(),
             ],
           ),
         ),
@@ -101,7 +101,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  // --- NEW CART BADGE LOGIC ---
+  //  NEW CART BADGE
   Widget _buildCartBadge() {
     // Count how many products in our global list have isInCart = true
     int totalInCart = allProducts.where((p) => p.isInCart).length;
@@ -266,7 +266,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  // --- UPDATED ADD/REMOVE BUTTON ---
+  //  UPDATED ADD/REMOVE BUTTON
   Widget _buildAddToCartButton(bool isWeb) {
     bool alreadyInCart = widget.product.isInCart;
 
