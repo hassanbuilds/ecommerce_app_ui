@@ -1,3 +1,4 @@
+import 'package:ecommerce_app/models/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerce_app/screens/fake_dummy_data.dart';
 import 'product_screen.dart';

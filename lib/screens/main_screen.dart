@@ -1,3 +1,4 @@
+import 'package:ecommerce_app/models/product_model.dart';
 import 'package:ecommerce_app/screens/cart_screen.dart';
 import 'package:ecommerce_app/screens/fake_dummy_data.dart';
 import 'package:ecommerce_app/screens/like_items.dart';
