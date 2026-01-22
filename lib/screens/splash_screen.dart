@@ -38,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. GET SCREEN SIZE
+    //  GET SCREEN SIZE
     final size = MediaQuery.of(context).size;
     final bool isWeb = size.width > 800;
 
@@ -46,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Colors.black,
-        // 2. CENTER FOR WEB (Adds margins on big screens)
+        //  CENTER FOR WEB (Adds margins on big screens)
         body: Center(
           child: Container(
             constraints: BoxConstraints(
@@ -114,7 +114,7 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
-  // 3. SEPARATE WIDGETS FOR CLEANER CODE
+  //  SEPARATE WIDGETS FOR CLEANER CODE
   Widget _buildMarqueeButton(BuildContext context, bool isWeb) {
     return Container(
       width: double.infinity,
