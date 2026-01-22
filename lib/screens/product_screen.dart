@@ -1,3 +1,4 @@
+import 'package:ecommerce_app/screens/cart_screen.dart';
 import 'package:ecommerce_app/screens/fake_dummy_data.dart';
 import 'package:flutter/material.dart';
 
@@ -35,39 +36,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  Widget _buildWebLayout() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(flex: 6, child: _buildImageSection(true)),
-          const SizedBox(width: 20),
-          Expanded(
-            flex: 4,
-            child: Column(
-              children: [
-                Expanded(child: _buildDetailsSection(true)),
-                const SizedBox(height: 20),
-                _buildAddToCartButton(true),
-                const SizedBox(height: 10),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMobileLayout() {
-    return Column(
-      children: [
-        Expanded(flex: 5, child: _buildImageSection(false)),
-        Expanded(flex: 4, child: _buildDetailsSection(false)),
-      ],
-    );
-  }
-
+  // --- APP BAR WITH NAVIGATION ---
   Widget _buildAppBar(BuildContext context, bool isWeb) {
     return Container(
       width: double.infinity,
@@ -101,41 +70,82 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  //  NEW CART BADGE
   Widget _buildCartBadge() {
-    // Count how many products in our global list have isInCart = true
     int totalInCart = allProducts.where((p) => p.isInCart).length;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        _buildCircleIcon(Icons.shopping_bag_outlined),
-        if (totalInCart > 0)
-          Positioned(
-            right: -2,
-            top: -2,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-              ),
-              constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
-              child: Text(
-                '$totalInCart',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const CartScreen()),
+        ).then((_) => setState(() {})); // Refresh when coming back
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          _buildCircleIcon(Icons.shopping_bag_outlined),
+          if (totalInCart > 0)
+            Positioned(
+              right: -2,
+              top: -2,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
                 ),
-                textAlign: TextAlign.center,
+                constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                child: Text(
+                  '$totalInCart',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  // --- LAYOUTS ---
+  Widget _buildWebLayout() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(flex: 6, child: _buildImageSection(true)),
+          const SizedBox(width: 20),
+          Expanded(
+            flex: 4,
+            child: Column(
+              children: [
+                Expanded(child: _buildDetailsSection(true)),
+                const SizedBox(height: 20),
+                _buildAddToCartButton(true),
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout() {
+    return Column(
+      children: [
+        Expanded(flex: 5, child: _buildImageSection(false)),
+        Expanded(flex: 4, child: _buildDetailsSection(false)),
       ],
     );
   }
 
+  // --- CONTENT SECTIONS ---
   Widget _buildImageSection(bool isWeb) {
     return Container(
       margin: EdgeInsets.all(isWeb ? 0 : 12),
@@ -266,7 +276,6 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  //  UPDATED ADD/REMOVE BUTTON
   Widget _buildAddToCartButton(bool isWeb) {
     bool alreadyInCart = widget.product.isInCart;
 
@@ -275,8 +284,10 @@ class _ProductScreenState extends State<ProductScreen> {
       child: ElevatedButton(
         onPressed: () {
           setState(() {
-            // Toggles the cart status
             widget.product.isInCart = !widget.product.isInCart;
+            if (widget.product.isInCart) {
+              widget.product.quantity = 1;
+            }
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -294,10 +305,7 @@ class _ProductScreenState extends State<ProductScreen> {
           );
         },
         style: ElevatedButton.styleFrom(
-          // Change color to indicate state
-          backgroundColor: alreadyInCart
-              ? Color(0xFFC7C7B1)
-              : const Color(0xFFC7C7B1),
+          backgroundColor: const Color(0xFFC7C7B1),
           minimumSize: const Size(double.infinity, 70),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
@@ -316,6 +324,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
+  // --- HELPERS ---
   Widget _buildCircleIcon(IconData icon) => Container(
     padding: const EdgeInsets.all(10),
     decoration: const BoxDecoration(

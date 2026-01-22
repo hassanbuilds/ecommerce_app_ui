@@ -1,8 +1,8 @@
+import 'package:ecommerce_app/screens/cart_screen.dart';
 import 'package:ecommerce_app/screens/fake_dummy_data.dart';
 import 'package:ecommerce_app/screens/like_items.dart';
 import 'package:flutter/material.dart';
 import 'product_screen.dart';
-import 'cart .dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -88,6 +88,99 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  Widget _buildTopHeader(bool isWeb) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Color(0xFFE5E5E0),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(25),
+          bottomRight: Radius.circular(25),
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(20, isWeb ? 30 : 60, 20, 25),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(Icons.menu, color: Colors.black, size: 28),
+              const Text(
+                'Lumière',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              _buildCartIcon(), // Dynamic Cart Icon
+            ],
+          ),
+          const SizedBox(height: 25),
+          TextField(
+            onChanged: (value) => setState(() => searchQuery = value),
+            decoration: InputDecoration(
+              hintText: "Search your needs",
+              prefixIcon: const Icon(Icons.search, color: Colors.grey),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- UPDATED DYNAMIC CART ICON ---
+  Widget _buildCartIcon() {
+    int totalInCart = allProducts.where((p) => p.isInCart).length;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const CartScreen()),
+        ).then((_) => setState(() {})); // Update UI when returning from cart
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          const Icon(
+            Icons.shopping_bag_outlined,
+            color: Colors.black,
+            size: 28,
+          ),
+          if (totalInCart > 0)
+            Positioned(
+              right: -2,
+              top: -2,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                ),
+                constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                child: Text(
+                  '$totalInCart',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildProductCard(BuildContext context, Product product) {
     return InkWell(
       onTap: () {
@@ -103,7 +196,6 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           Expanded(
             child: Hero(
-              // Unique tag using ID
               tag: 'product_${product.id}',
               child: Container(
                 decoration: BoxDecoration(
@@ -162,54 +254,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  //  Header, Nav, and Category Widgets remain largely the same, just ensure correct navigation calls
-  Widget _buildTopHeader(bool isWeb) {
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Color(0xFFE5E5E0),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(25),
-          bottomRight: Radius.circular(25),
-        ),
-      ),
-      padding: EdgeInsets.fromLTRB(20, isWeb ? 30 : 60, 20, 25),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Icon(Icons.menu, color: Colors.black, size: 28),
-              const Text(
-                'Lumière',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              _buildCartIcon(),
-            ],
-          ),
-          const SizedBox(height: 25),
-          TextField(
-            onChanged: (value) => setState(() => searchQuery = value),
-            decoration: InputDecoration(
-              hintText: "Search your needs",
-              prefixIcon: const Icon(Icons.search, color: Colors.grey),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildBottomNavBar(bool isWeb) {
     return Container(
       height: 70,
@@ -252,6 +296,7 @@ class _MainScreenState extends State<MainScreen> {
           size: 28,
         ),
       );
+
   Widget _buildCategoryList() {
     final List<String> categories = [
       "Trending",
@@ -295,22 +340,4 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
-
-  Widget _buildCartIcon() => Stack(
-    children: [
-      const Icon(Icons.shopping_bag_outlined, color: Colors.black, size: 28),
-      Positioned(
-        right: 0,
-        top: 0,
-        child: Container(
-          height: 10,
-          width: 10,
-          decoration: const BoxDecoration(
-            color: Colors.orange,
-            shape: BoxShape.circle,
-          ),
-        ),
-      ),
-    ],
-  );
 }

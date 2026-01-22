@@ -9,17 +9,16 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  //  Logic to handle currency symbols correctly
+  // Helper to convert price string (e.g., "€120.00") to a double
   double _parsePrice(String priceStr) {
     try {
-      // Removes any non-numeric characters except the decimal point
       return double.parse(priceStr.replaceAll(RegExp(r'[^0-9.]'), ''));
     } catch (e) {
       return 0.0;
     }
   }
 
-  // Logic to calculate total price dynamically
+  // Calculate the grand total
   double get totalAmount {
     double total = 0;
     for (var product in allProducts.where((p) => p.isInCart)) {
@@ -30,7 +29,6 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Filters the global list for items added to cart
     final cartItems = allProducts.where((p) => p.isInCart).toList();
 
     return Scaffold(
@@ -94,56 +92,75 @@ class _CartScreenState extends State<CartScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  product.title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        product.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    // --- DELETE BUTTON ---
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          product.isInCart = false;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("${product.title} removed"),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      child: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.redAccent,
+                        size: 22,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                // Show dynamic price per item
+                const SizedBox(height: 5),
                 Text(
                   product.price,
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(color: Colors.black54),
+                ),
+                const SizedBox(height: 10),
+                // Quantity Controls
+                Row(
+                  children: [
+                    _buildQtyBtn(Icons.remove, () {
+                      setState(() {
+                        if (product.quantity > 1) {
+                          product.quantity--;
+                        } else {
+                          product.isInCart = false;
+                        }
+                      });
+                    }),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        "${product.quantity}",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    _buildQtyBtn(Icons.add, () {
+                      setState(() {
+                        product.quantity++;
+                      });
+                    }),
+                  ],
                 ),
               ],
             ),
-          ),
-          // Quantity Controls
-          Column(
-            children: [
-              Row(
-                children: [
-                  _buildQtyBtn(Icons.remove, () {
-                    setState(() {
-                      if (product.quantity > 1) {
-                        product.quantity--;
-                      } else {
-                        product.isInCart = false;
-                        product.quantity = 1; // Reset for next time
-                      }
-                    });
-                  }),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Text(
-                      "${product.quantity}",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                  _buildQtyBtn(Icons.add, () {
-                    setState(() => product.quantity++);
-                  }),
-                ],
-              ),
-            ],
           ),
         ],
       ),
@@ -158,74 +175,8 @@ class _CartScreenState extends State<CartScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 2),
-          ],
         ),
         child: Icon(icon, size: 18, color: Colors.black),
-      ),
-    );
-  }
-
-  Widget _buildCheckoutSection() {
-    return Container(
-      padding: const EdgeInsets.all(25),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(35),
-          topRight: Radius.circular(35),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Total Amount:",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-              Text(
-                "€${totalAmount.toStringAsFixed(2)}",
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Add Payment logic here
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              minimumSize: const Size(double.infinity, 65),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            child: const Text(
-              "Checkout Now",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -240,10 +191,62 @@ class _CartScreenState extends State<CartScreen> {
             size: 80,
             color: Colors.grey.shade300,
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 20),
           const Text(
             "Your cart is empty",
             style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCheckoutSection() {
+    return Container(
+      padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            offset: const Offset(0, -5),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Total Amount",
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              Text(
+                "€${totalAmount.toStringAsFixed(2)}",
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              minimumSize: const Size(double.infinity, 65),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: const Text(
+              "Checkout Now",
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
           ),
         ],
       ),
