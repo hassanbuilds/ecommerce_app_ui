@@ -9,7 +9,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // FIXED: Logic to handle currency symbols correctly
+  //  Logic to handle currency symbols correctly
   double _parsePrice(String priceStr) {
     try {
       // Removes any non-numeric characters except the decimal point
